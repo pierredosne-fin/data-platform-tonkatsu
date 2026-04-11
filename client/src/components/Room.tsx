@@ -11,6 +11,8 @@ interface Props {
   isDropTarget?: boolean;
   onMouseDown: (agent: Agent, e: React.MouseEvent) => void;
   onRenameAgent?: (agentId: string, name: string) => void;
+  onEditAgent?: (agentId: string) => void;
+  onDeleteAgent?: (agentId: string) => void;
 }
 
 export function Room({
@@ -22,6 +24,8 @@ export function Room({
   isDropTarget,
   onMouseDown,
   onRenameAgent,
+  onEditAgent,
+  onDeleteAgent,
 }: Props) {
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState('');
@@ -115,6 +119,24 @@ export function Room({
           </span>
         )}
       </div>
+      {agent && (onEditAgent || onDeleteAgent) && (
+        <div className="room-actions">
+          {onEditAgent && (
+            <button
+              className="room-action-btn"
+              title="Edit agent"
+              onClick={(e) => { e.stopPropagation(); onEditAgent(agent.id); }}
+            >✎</button>
+          )}
+          {onDeleteAgent && (
+            <button
+              className="room-action-btn room-action-btn--danger"
+              title="Delete agent"
+              onClick={(e) => { e.stopPropagation(); onDeleteAgent(agent.id); }}
+            >✕</button>
+          )}
+        </div>
+      )}
       {agent?.status === 'pending' && (
         <div className="room-pending-badge">Needs input</div>
       )}

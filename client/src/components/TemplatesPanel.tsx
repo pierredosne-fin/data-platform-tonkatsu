@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useTemplateStore } from '../store/templateStore';
 import { useSkillStore } from '../store/skillStore';
 import { CreateAgentTemplateModal } from './CreateAgentTemplateModal';
@@ -25,6 +25,16 @@ function SkillEditor({
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setContent(reader.result as string);
+    reader.readAsText(file);
+    e.target.value = '';
+  };
 
   const handleGenerate = async () => {
     if (!name.trim() || !description.trim()) {
@@ -84,14 +94,30 @@ function SkillEditor({
           <div className="form-group">
             <div className="skill-content-header">
               <label>SKILL.md</label>
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm"
-                onClick={handleGenerate}
-                disabled={generating || !name.trim() || !description.trim()}
-              >
-                {generating ? 'Generating…' : '✦ Generate'}
-              </button>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  ↑ Upload
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={handleGenerate}
+                  disabled={generating || !name.trim() || !description.trim()}
+                >
+                  {generating ? 'Generating…' : '✦ Generate'}
+                </button>
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".md,.txt"
+                style={{ display: 'none' }}
+                onChange={handleUpload}
+              />
             </div>
             <textarea
               className="file-editor"

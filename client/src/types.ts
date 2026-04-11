@@ -38,6 +38,7 @@ export interface AgentTemplate {
   name: string;
   mission: string;
   avatarColor: string;
+  workspacePath?: string;
   description?: string;
   tags?: string[];
   isPublic?: boolean;

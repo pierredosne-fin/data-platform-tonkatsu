@@ -39,6 +39,7 @@ export function createAgentTemplate(params: {
   name: string;
   mission: string;
   avatarColor: string;
+  workspacePath?: string;
   description?: string;
   tags?: string[];
   isPublic?: boolean;
@@ -49,6 +50,7 @@ export function createAgentTemplate(params: {
     name: params.name,
     mission: params.mission,
     avatarColor: params.avatarColor,
+    workspacePath: params.workspacePath || undefined,
     description: params.description,
     tags: params.tags,
     isPublic: params.isPublic ?? false,
@@ -65,6 +67,7 @@ export function updateAgentTemplate(id: string, params: {
   name?: string;
   mission?: string;
   avatarColor?: string;
+  workspacePath?: string;
   description?: string;
   tags?: string[];
   isPublic?: boolean;
@@ -75,6 +78,7 @@ export function updateAgentTemplate(id: string, params: {
   if (params.name !== undefined) template.name = params.name;
   if (params.mission !== undefined) template.mission = params.mission;
   if (params.avatarColor !== undefined) template.avatarColor = params.avatarColor;
+  if (params.workspacePath !== undefined) template.workspacePath = params.workspacePath || undefined;
   if (params.description !== undefined) template.description = params.description;
   if (params.tags !== undefined) template.tags = params.tags;
   if (params.isPublic !== undefined) template.isPublic = params.isPublic;

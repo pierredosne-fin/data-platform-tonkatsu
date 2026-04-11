@@ -5,7 +5,7 @@ import { Room } from './Room';
 import type { Agent, Room as RoomType } from '../types';
 
 const GRID_COLS = 5;
-const GRID_ROWS = 2;
+const GRID_ROWS = 3;
 const ROOMS: RoomType[] = Array.from({ length: GRID_COLS * GRID_ROWS }, (_, i) => ({
   id: `room-${String(i + 1).padStart(2, '0')}`,
   agentId: null,
@@ -16,6 +16,8 @@ const ROOMS: RoomType[] = Array.from({ length: GRID_COLS * GRID_ROWS }, (_, i) =
 interface Props {
   onAgentClick: (agentId: string) => void;
   onEmptyRoomClick?: (roomId: string) => void;
+  onEditAgent?: (agentId: string) => void;
+  onDeleteAgent?: (agentId: string) => void;
 }
 
 interface DelegationLine {
@@ -31,7 +33,7 @@ interface DragState {
   y: number;
 }
 
-export function OfficeMap({ onAgentClick, onEmptyRoomClick }: Props) {
+export function OfficeMap({ onAgentClick, onEmptyRoomClick, onEditAgent, onDeleteAgent }: Props) {
   const agents = useAgentStore((s) => s.agents);
   const currentTeamId = useAgentStore((s) => s.currentTeamId);
   const activeDelegations = useAgentStore((s) => s.activeDelegations);
@@ -161,6 +163,8 @@ export function OfficeMap({ onAgentClick, onEmptyRoomClick }: Props) {
             isDropTarget={hoverRoomId === room.id && drag?.sourceRoomId !== room.id}
             onMouseDown={(agent, e) => startDrag(agent, room.id, e)}
             onRenameAgent={handleRenameAgent}
+            onEditAgent={onEditAgent}
+            onDeleteAgent={onDeleteAgent}
           />
         ))}
 

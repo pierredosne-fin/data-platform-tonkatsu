@@ -75,8 +75,14 @@ io.on('connection', (socket) => {
 // ── Start listening ───────────────────────────────────────────────────────────
 
 process.on('SIGTERM', () => {
-  console.log('[process] SIGTERM received — tsx is restarting due to a file change in src/');
-  process.exit(0);
+  console.log('[process] SIGTERM received — closing connections before exit');
+  io.close(() => {
+    httpServer.close(() => {
+      process.exit(0);
+    });
+  });
+  // Force exit after 2s if handles won't close
+  setTimeout(() => process.exit(0), 2000).unref();
 });
 
 httpServer.listen(PORT, () => {

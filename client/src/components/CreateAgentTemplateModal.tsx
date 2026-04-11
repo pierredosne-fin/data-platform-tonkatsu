@@ -37,6 +37,7 @@ export function CreateAgentTemplateModal({ onClose, onCreated, editTemplate }: P
   const [name, setName] = useState(editTemplate?.name ?? '');
   const [mission, setMission] = useState(editTemplate?.mission ?? '');
   const [color, setColor] = useState(editTemplate?.avatarColor ?? PRESET_COLORS[0]);
+  const [workspacePath, setWorkspacePath] = useState(editTemplate?.workspacePath ?? '');
   const [loading, setLoading] = useState(false);
   const [generatingMission, setGeneratingMission] = useState(false);
 
@@ -72,9 +73,9 @@ export function CreateAgentTemplateModal({ onClose, onCreated, editTemplate }: P
     setLoading(true);
     let result;
     if (isEdit) {
-      result = await updateAgentTemplate(editTemplate!.id, { name: name.trim(), mission: mission.trim(), avatarColor: color });
+      result = await updateAgentTemplate(editTemplate!.id, { name: name.trim(), mission: mission.trim(), avatarColor: color, workspacePath: workspacePath.trim() || undefined });
     } else {
-      result = await createAgentTemplate({ name: name.trim(), mission: mission.trim(), avatarColor: color });
+      result = await createAgentTemplate({ name: name.trim(), mission: mission.trim(), avatarColor: color, workspacePath: workspacePath.trim() || undefined });
     }
     setLoading(false);
     if (result) { onCreated(); onClose(); }
@@ -256,6 +257,25 @@ export function CreateAgentTemplateModal({ onClose, onCreated, editTemplate }: P
                   <button key={c} type="button" className={`color-swatch ${color === c ? 'color-swatch--selected' : ''}`} style={{ backgroundColor: c }} onClick={() => setColor(c)} />
                 ))}
               </div>
+            </div>
+            <div className="form-group">
+              <label htmlFor="tpl-workspace">
+                Workspace Path
+                <span className="form-hint"> — optional, absolute path to a git repo</span>
+              </label>
+              <input
+                id="tpl-workspace"
+                type="text"
+                value={workspacePath}
+                onChange={(e) => setWorkspacePath(e.target.value)}
+                placeholder="Leave empty to auto-create workspace"
+                spellCheck={false}
+              />
+              {workspacePath.trim() && (
+                <span className="form-hint-block">
+                  Each agent spawned from this template will get a dedicated worktree (branch <code>agent/…</code>) in this repo.
+                </span>
+              )}
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>

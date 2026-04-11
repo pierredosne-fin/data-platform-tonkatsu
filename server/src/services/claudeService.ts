@@ -7,7 +7,7 @@ import { notifyDesktop } from './notifyService.js';
 
 const NEED_INPUT_RE = /<NEED_INPUT>([\s\S]*?)<\/NEED_INPUT>/;
 const CALL_AGENT_RE = /<CALL_AGENT name="([^"]+)">([\s\S]*?)<\/CALL_AGENT>/;
-const MAX_CALL_DEPTH = 3;
+const MAX_CALL_DEPTH = 5;
 
 // Build the append portion of the system prompt (agent identity + delegation protocol).
 // CLAUDE.md, workspace rules, and skills are loaded natively by the SDK via settingSources.

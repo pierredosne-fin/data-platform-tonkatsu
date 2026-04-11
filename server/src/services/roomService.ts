@@ -4,7 +4,7 @@ import type { Room } from '../models/types.js';
 const teamRooms: Map<string, Map<string, Room>> = new Map();
 
 const GRID_COLS = 5;
-const GRID_ROWS = 2;
+const GRID_ROWS = 3;
 
 function createRoomsForTeam(): Map<string, Room> {
   const rooms = new Map<string, Room>();

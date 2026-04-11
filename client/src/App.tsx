@@ -84,6 +84,8 @@ export default function App() {
         <OfficeMap
           onAgentClick={(id) => setChatAgentId(id)}
           onEmptyRoomClick={() => setShowCreate(true)}
+          onEditAgent={(id) => setEditAgentId(id)}
+          onDeleteAgent={handleDelete}
         />
         <AgentSidebar onAgentClick={(id) => setChatAgentId(id)} />
       </div>

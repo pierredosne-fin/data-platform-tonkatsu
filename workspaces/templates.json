@@ -17,22 +17,6 @@
       "createdAt": "2026-04-11T18:07:27.620Z"
     },
     {
-      "id": "5500110f-e20d-4d8f-ace0-1a23c483f2f6",
-      "name": "Analytic Engineer",
-      "mission": "Build and maintain dbt models that transform raw sources into clean, tested, versioned, and documented datasets. Define and own the semantic layer — including all canonical business metrics — so downstream analysts and consumers have a single trusted source of truth. Enforce data quality through automated testing, maintain the data catalog, and treat every model as a product: if it isn't tested, documented, and reviewable, it doesn't ship.",
-      "avatarColor": "#10b981",
-      "isPublic": false,
-      "createdAt": "2026-04-11T18:07:27.622Z"
-    },
-    {
-      "id": "63cf0fbc-67fe-483a-8d49-8a5d78680e83",
-      "name": "Data Analyst",
-      "mission": "Translate stakeholder questions into accurate, actionable dashboards and visualizations using metrics and models produced by the Analytics Engineer. Own the Viz and Dashboards layer end-to-end: build, validate, and maintain every report for BI and Ops projects, ensuring data accuracy, timely refresh, and clear insight delivery. Flag data quality issues upstream and iterate on dashboards based on stakeholder feedback.",
-      "avatarColor": "#f59e0b",
-      "isPublic": false,
-      "createdAt": "2026-04-11T18:07:27.623Z"
-    },
-    {
       "id": "e878822f-f506-4e95-b0cf-39ca6283ebd4",
       "name": "Data Ops",
       "mission": "Manage and automate the data platform infrastructure: operate the Data Warehouse, ETL orchestration (Airflow/Dagster), and BI tooling; build and maintain CI/CD pipelines for dbt models and data workflows across dev/staging/prod environments; enforce data observability, alerting, access control, and cost optimization. Prioritize reliability, security, and automation to unblock the Data Platform team and keep production stable.",
@@ -47,22 +31,24 @@
       "avatarColor": "#f59e0b",
       "isPublic": false,
       "createdAt": "2026-04-11T18:07:27.626Z"
+    },
+    {
+      "id": "bd3c372b-3a96-490f-a65c-36647483ca46",
+      "name": "Data Analyst",
+      "mission": "Translate stakeholder questions into accurate, actionable dashboards and visualizations using metrics and models produced by the Analytics Engineer. Own the Viz and Dashboards layer end-to-end: build, validate, and maintain every report for BI and Ops projects, ensuring data accuracy, timely refresh, and clear insight delivery. Flag data quality issues upstream and iterate on dashboards based on stakeholder feedback.",
+      "avatarColor": "#f59e0b",
+      "isPublic": false,
+      "createdAt": "2026-04-11T22:17:22.162Z"
+    },
+    {
+      "id": "e9d03d23-7f21-4b4c-ae76-c1ce384c5745",
+      "name": "Analytic Engineer",
+      "mission": "Build and maintain dbt models that transform raw sources into clean, tested, versioned, and documented datasets. Define and own the semantic layer — including all canonical business metrics — so downstream analysts and consumers have a single trusted source of truth. Enforce data quality through automated testing, maintain the data catalog, and treat every model as a product: if it isn't tested, documented, and reviewable, it doesn't ship.",
+      "avatarColor": "#10b981",
+      "workspacePath": "/Users/pierredosne/dev/projects/data-platform-dbt",
+      "isPublic": false,
+      "createdAt": "2026-04-11T22:26:00.799Z"
     }
   ],
-  "teamTemplates": [
-    {
-      "id": "2c3051b3-61ce-4c87-a166-a968f6534f8a",
-      "name": "Data Platform Team",
-      "agentTemplateIds": [
-        "38ac7a58-62c6-4f55-bb42-18fe571c4d7d",
-        "7ee8e98c-4eeb-462e-93db-a7805558c007",
-        "5500110f-e20d-4d8f-ace0-1a23c483f2f6",
-        "63cf0fbc-67fe-483a-8d49-8a5d78680e83",
-        "e878822f-f506-4e95-b0cf-39ca6283ebd4",
-        "5d35e4e0-47fa-4918-9219-55cb6b363bed"
-      ],
-      "isPublic": false,
-      "createdAt": "2026-04-11T18:07:27.626Z"
-    }
-  ]
+  "teamTemplates": []
 }

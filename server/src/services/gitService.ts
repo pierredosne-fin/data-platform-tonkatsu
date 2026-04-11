@@ -20,6 +20,12 @@ export function createWorktree(repoPath: string, worktreePath: string, branch: s
   }
 }
 
+export function pruneWorktrees(repoPath: string): void {
+  try {
+    execSync('git worktree prune', { cwd: repoPath, stdio: 'pipe' });
+  } catch { /* ignore */ }
+}
+
 export function removeWorktree(repoPath: string, worktreePath: string): void {
   try {
     execSync(`git worktree remove --force "${worktreePath}"`, {

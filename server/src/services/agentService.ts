@@ -4,7 +4,7 @@ import { join } from 'path';
 import { setCreateAgentsPermission, setupWorkspaceStructure } from './fileService.js';
 import type { Agent, AgentStatus, Message } from '../models/types.js';
 import { assignRoom, freeRoom, swapRooms } from './roomService.js';
-import { isGitRepo, createWorktree, removeWorktree } from './gitService.js';
+import { isGitRepo, createWorktree, removeWorktree, pruneWorktrees } from './gitService.js';
 import {
   getSessionMessages,
   listSessions as sdkListSessions,
@@ -91,12 +91,17 @@ export function createAgent(params: {
   if (externalPath) {
     if (isGitRepo(externalPath)) {
       const branch = `agent/${slug}-${id.slice(0, 8)}`;
+      // Ensure parent directory exists (git worktree add won't create intermediate dirs)
+      mkdirSync(join(autoPath, '..'), { recursive: true });
+      // Prune stale worktree references so a previously-deleted agent's path doesn't block
+      pruneWorktrees(externalPath);
       if (createWorktree(externalPath, autoPath, branch)) {
         workspacePath = autoPath;
         worktreeOf = externalPath;
         isOwnWorkspace = true;
         console.log(`[git] Created worktree at ${autoPath} (branch: ${branch})`);
       } else {
+        console.warn(`[git] Worktree creation failed for ${externalPath} → falling back to direct path`);
         workspacePath = externalPath;
       }
     } else {

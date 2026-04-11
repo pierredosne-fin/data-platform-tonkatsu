@@ -248,7 +248,7 @@ html, body, #root {
 .office-map {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding: 24px;
   overflow: auto;
@@ -260,7 +260,7 @@ html, body, #root {
 .office-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(2, 160px);
+  grid-template-rows: repeat(3, 160px);
   gap: 14px;
   width: min(900px, 100%);
   position: relative;
@@ -362,6 +362,48 @@ html, body, #root {
 
 .room--vacant:hover .room-vacant-text {
   color: var(--text);
+}
+
+.room-actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.room:hover .room-actions {
+  opacity: 1;
+}
+
+.room-action-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 4px;
+  width: 22px;
+  height: 22px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+
+.room-action-btn:hover {
+  background: var(--surface3, var(--surface2));
+  color: var(--text);
+  border-color: var(--text-dim);
+}
+
+.room-action-btn--danger:hover {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
 }
 
 .room-pending-badge {

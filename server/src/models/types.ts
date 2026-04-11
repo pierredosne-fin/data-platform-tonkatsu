@@ -39,6 +39,7 @@ export interface AgentTemplate {
   name: string;
   mission: string;
   avatarColor: string;
+  workspacePath?: string; // git repo path — a worktree is created from it when spawning agents
   description?: string;
   tags?: string[];
   isPublic?: boolean;

@@ -40,7 +40,15 @@ export function createAgentRouter(io: Server) {
       return;
     }
 
-    const agent = agentService.createAgent({ ...result.data, teamId });
+    // If a template is selected and the user didn't provide a workspace path,
+    // inherit the template's workspacePath (triggers worktree creation if it's a git repo)
+    let effectiveWorkspacePath = result.data.workspacePath;
+    if (!effectiveWorkspacePath && result.data.agentTemplateId) {
+      const tmpl = templateService.getAgentTemplate(result.data.agentTemplateId);
+      if (tmpl?.workspacePath) effectiveWorkspacePath = tmpl.workspacePath;
+    }
+
+    const agent = agentService.createAgent({ ...result.data, teamId, workspacePath: effectiveWorkspacePath });
     if (!agent) {
       res.status(409).json({ error: 'No vacant rooms available' });
       return;
