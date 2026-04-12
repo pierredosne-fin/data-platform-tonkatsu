@@ -52,6 +52,7 @@ interface AgentStore {
   resetToolCounter: (agentId: string) => void;
   setAgentHistory: (agentId: string, history: Message[]) => void;
   appendAgentMessage: (agentId: string, message: Message) => void;
+  clearDelegationEvents: (agentId: string) => void;
   setAgentSessions: (agentId: string, sessions: ConversationSession[]) => void;
 }
 
@@ -184,15 +185,23 @@ export const useAgentStore = create<AgentStore>((set) => ({
   setAgentHistory: (agentId, history) =>
     set((state) => {
       const next = new Map(state.agentHistories);
-      next.set(agentId, history);
+      // Assign sequential fake timestamps so loaded history always sorts before live events
+      next.set(agentId, history.map((m, i) => m.timestamp ? m : { ...m, timestamp: new Date(i).toISOString() }));
       return { agentHistories: next };
     }),
 
   appendAgentMessage: (agentId, message) =>
     set((state) => {
       const next = new Map(state.agentHistories);
-      next.set(agentId, [...(next.get(agentId) ?? []), message]);
+      next.set(agentId, [...(next.get(agentId) ?? []), { ...message, timestamp: new Date().toISOString() }]);
       return { agentHistories: next };
+    }),
+
+  clearDelegationEvents: (agentId) =>
+    set((state) => {
+      const next = new Map(state.delegationEvents);
+      next.delete(agentId);
+      return { delegationEvents: next };
     }),
 
   setAgentSessions: (agentId, sessions) =>

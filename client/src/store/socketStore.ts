@@ -213,6 +213,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     if (!socket) return;
     useAgentStore.getState().clearStream(agentId);
     useAgentStore.getState().clearToolEvents(agentId);
+    useAgentStore.getState().clearDelegationEvents(agentId);
     useAgentStore.getState().resetToolCounter(agentId);
     socket.emit('agent:sendMessage', { agentId, message });
   },

@@ -278,7 +278,7 @@ Write tailored, concise instructions that will make this agent highly effective 
         // Copy template workspace files to the agent's workspace
         fileService.copyWorkspaceFiles(
           templateService.getAgentTemplateWorkspacePath(agentTemplate.id),
-          agent.repoUrl,
+          agent.workspacePath,
         );
         io.emit('agent:created', agentService.toClientAgent(agent));
         createdAgents.push(agentService.toClientAgent(agent));

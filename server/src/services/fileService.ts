@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync, unlinkSync, rmdirSync, statSync, copyFileSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync, unlinkSync, rmdirSync, rmSync, statSync, copyFileSync } from 'fs';
 import { join, dirname, basename, extname, relative } from 'path';
 
 function safeRead(filePath: string): string | null {
@@ -35,14 +35,9 @@ function listSkills(dir: string): { name: string; content: string }[] {
   const results: { name: string; content: string }[] = [];
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry);
-    const stat = statSync(full);
-    if (stat.isDirectory()) {
-      const skillMd = join(full, 'SKILL.md');
-      if (existsSync(skillMd)) {
-        results.push({ name: entry, content: readFileSync(skillMd, 'utf-8') });
-      }
-    }
-    // Skip .skill zip files (binary)
+    if (!statSync(full).isDirectory()) continue; // skip .skill zip files etc.
+    const skillMd = join(full, 'SKILL.md');
+    results.push({ name: entry, content: existsSync(skillMd) ? readFileSync(skillMd, 'utf-8') : '' });
   }
   return results;
 }
@@ -112,7 +107,12 @@ export function writeCommand(workspacePath: string, name: string, content: strin
 export function deleteCommand(workspacePath: string, name: string): void {
   if (!/^[\w/-]+$/.test(name)) throw new Error('Invalid command name');
   const p = join(workspacePath, '.claude', 'commands', `${name}.md`);
-  if (existsSync(p)) unlinkSync(p);
+  if (existsSync(p)) {
+    unlinkSync(p);
+    const parentDir = dirname(p);
+    const baseDir = join(workspacePath, '.claude', 'commands');
+    if (parentDir !== baseDir) try { rmdirSync(parentDir); } catch { /* not empty */ }
+  }
 }
 
 export function writeRule(workspacePath: string, name: string, content: string): void {
@@ -123,7 +123,12 @@ export function writeRule(workspacePath: string, name: string, content: string):
 export function deleteRule(workspacePath: string, name: string): void {
   if (!/^[\w/-]+$/.test(name)) throw new Error('Invalid rule name');
   const p = join(workspacePath, '.claude', 'rules', `${name}.md`);
-  if (existsSync(p)) unlinkSync(p);
+  if (existsSync(p)) {
+    unlinkSync(p);
+    const parentDir = dirname(p);
+    const baseDir = join(workspacePath, '.claude', 'rules');
+    if (parentDir !== baseDir) try { rmdirSync(parentDir); } catch { /* not empty */ }
+  }
 }
 
 export function writeSkill(workspacePath: string, name: string, content: string): void {
@@ -198,9 +203,5 @@ export function setupWorkspaceStructure(workspacePath: string, agentName: string
 export function deleteSkill(workspacePath: string, name: string): void {
   if (!/^[\w-]+$/.test(name)) throw new Error('Invalid skill name');
   const dir = join(workspacePath, '.claude', 'skills', name);
-  if (!existsSync(dir)) return;
-  // Remove SKILL.md then the directory if empty enough
-  const skillMd = join(dir, 'SKILL.md');
-  if (existsSync(skillMd)) unlinkSync(skillMd);
-  try { rmdirSync(dir); } catch { /* not empty, leave it */ }
+  if (existsSync(dir)) rmSync(dir, { recursive: true, force: true });
 }

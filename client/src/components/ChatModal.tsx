@@ -282,23 +282,26 @@ export function ChatModal({ agentId, onClose, onDelete, onEdit }: Props) {
             )}
           </div>
 
-          {history.map((msg, i) => (
-            <div key={i} className={`chat-message chat-message--${msg.role}`}>
-              <span className="chat-message-label">
-                {msg.role === 'user' ? 'You' : agent.name}
-              </span>
-              <div className="chat-message-content chat-message-content--md">
-                <ReactMarkdown>{cleanText(msg.content)}</ReactMarkdown>
-              </div>
-            </div>
-          ))}
-
           {[
+            ...history.map((msg, i) => ({ kind: 'message' as const, ts: msg.timestamp ?? new Date(i).toISOString(), msg })),
             ...toolEvents.map((ev) => ({ kind: 'tool' as const, ts: ev.timestamp, ev })),
             ...delegationEvents.map((ev) => ({ kind: 'delegation' as const, ts: ev.timestamp, ev })),
           ]
             .sort((a, b) => a.ts.localeCompare(b.ts))
             .map((item, i) => {
+              if (item.kind === 'message') {
+                const { msg } = item;
+                return (
+                  <div key={i} className={`chat-message chat-message--${msg.role}`}>
+                    <span className="chat-message-label">
+                      {msg.role === 'user' ? 'You' : agent.name}
+                    </span>
+                    <div className="chat-message-content chat-message-content--md">
+                      <ReactMarkdown>{cleanText(msg.content)}</ReactMarkdown>
+                    </div>
+                  </div>
+                );
+              }
               if (item.kind === 'tool') {
                 const ev = item.ev;
                 return (

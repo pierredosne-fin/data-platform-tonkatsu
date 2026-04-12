@@ -193,10 +193,16 @@ async function runSDKQuery(
         io.to(`agent:${agentId}`).emit('agent:stream', { agentId, chunk: '', done: true });
         if (message.subtype !== 'success') {
           const errors = (message as { errors?: string[] }).errors ?? [];
-          console.error(`Agent ${agentId} SDK error (${message.subtype}):`, errors.join('; '));
+          const errorMsg = errors.join('; ');
+          console.error(`Agent ${agentId} SDK error (${message.subtype}):`, errorMsg);
+          // Stale session — clear it so the next run starts fresh instead of looping
+          if (message.subtype === 'error_during_execution' && sessionId !== undefined) {
+            console.warn(`Agent ${agentId}: clearing stale session ${sessionId}`);
+            agentService.clearSessionId(agentId);
+          }
           io.emit('agent:error', {
             agentId,
-            error: `${message.subtype}${errors.length ? ': ' + errors.join('; ') : ''}`,
+            error: `${message.subtype}${errors.length ? ': ' + errorMsg : ''}`,
           });
         }
         break;

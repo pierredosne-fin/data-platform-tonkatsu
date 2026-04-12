@@ -59,8 +59,11 @@ export function syncWorkspaceDir(workspacesDir: string, cfg: WorkspaceSyncConfig
     const clonedPath = join(REPOS_DIR, slug);
 
     if (existsSync(clonedPath) && isGitRepo(clonedPath)) {
-      // Already cloned — just pull
-      execSync(`git pull`, { cwd: clonedPath, env, stdio: 'pipe' });
+      // Already cloned — mirror remote exactly (fetch + hard reset + clean untracked)
+      const branch = cfg.branch ?? 'main';
+      execSync(`git fetch origin`, { cwd: clonedPath, env, stdio: 'pipe' });
+      execSync(`git reset --hard origin/${branch}`, { cwd: clonedPath, env, stdio: 'pipe' });
+      execSync(`git clean -fd`, { cwd: clonedPath, env, stdio: 'pipe' });
     } else {
       // First time: clone into repos/<slug>/
       mkdirSync(dirname(clonedPath), { recursive: true });
@@ -68,11 +71,18 @@ export function syncWorkspaceDir(workspacesDir: string, cfg: WorkspaceSyncConfig
       execSync(`git clone ${branchFlag}"${cfg.remoteUrl}" "${clonedPath}"`, { env, stdio: 'pipe' });
     }
 
-    // Create/update symlink: workspaces/ → repos/<slug>/
-    // If workspaces/ is already a symlink pointing to the right place, skip
+    // If workspaces/ is already a git repo (not a symlink), mirror remote exactly
     const isSymlink = existsSync(workspacesDir) && lstatSync(workspacesDir).isSymbolicLink();
+    if (!isSymlink && existsSync(workspacesDir) && isGitRepo(workspacesDir)) {
+      const branch = cfg.branch ?? 'main';
+      execSync(`git fetch origin`, { cwd: workspacesDir, env, stdio: 'pipe' });
+      execSync(`git reset --hard origin/${branch}`, { cwd: workspacesDir, env, stdio: 'pipe' });
+      execSync(`git clean -fd`, { cwd: workspacesDir, env, stdio: 'pipe' });
+      return { ok: true };
+    }
+
+    // Create/update symlink: workspaces/ → repos/<slug>/
     if (!isSymlink) {
-      // Remove existing real directory and replace with symlink
       if (existsSync(workspacesDir)) {
         rmSync(workspacesDir, { recursive: true, force: true });
       }
