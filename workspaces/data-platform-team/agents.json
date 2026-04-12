@@ -9,7 +9,7 @@
     "workspacePath": "/Users/pierredosne/dev/projects/my_team/workspaces/data-platform-team/lead-data-platform",
     "sessionId": "a129a22e-e26b-4689-9155-f02bf395f383",
     "canCreateAgents": false,
-    "lastActivity": "2026-04-11T22:14:17.424Z",
+    "lastActivity": "2026-04-12T12:50:10.517Z",
     "createdAt": "2026-04-11T17:56:33.133Z"
   },
   {
@@ -22,7 +22,7 @@
     "workspacePath": "/Users/pierredosne/dev/projects/my_team/workspaces/data-platform-team/data-engineer",
     "sessionId": "8afccecd-0d39-481c-afdc-dd9c14148ced",
     "canCreateAgents": false,
-    "lastActivity": "2026-04-11T22:19:08.350Z",
+    "lastActivity": "2026-04-12T13:00:09.620Z",
     "createdAt": "2026-04-11T17:56:33.135Z"
   },
   {
@@ -35,7 +35,7 @@
     "workspacePath": "/Users/pierredosne/dev/projects/my_team/workspaces/data-platform-team/data-analyst",
     "sessionId": "ba88a896-9206-4435-a9f0-1de7a7ba4249",
     "canCreateAgents": false,
-    "lastActivity": "2026-04-11T22:25:08.706Z",
+    "lastActivity": "2026-04-12T12:47:09.561Z",
     "createdAt": "2026-04-11T17:56:33.137Z"
   },
   {
@@ -43,37 +43,39 @@
     "name": "Data Project manager",
     "mission": "Orchestrate end-to-end delivery of data requests: intake business questions, translate them into precise metrics and dimensions (with breakdowns and filters), and define the target visualization/dashboard structure top-down with the Data Analyst. Assess data availability — if source data is missing, scope ingestion work with the Data Engineer; if available, define transformation and modeling steps with the Analytics Engineer, ensuring alignment with existing conventions. Validate every deliverable at each stage (sources → Data Engineer, models/metrics → Analytics Engineer, visualizations/dashboards → Data Analyst) and own final delivery sign-off.",
     "avatarColor": "#f59e0b",
-    "roomId": "room-05",
+    "roomId": "room-04",
     "teamId": "data-platform-team",
     "workspacePath": "/Users/pierredosne/dev/projects/my_team/workspaces/data-platform-team/data-project-manager",
     "sessionId": "e88d5ee0-70b2-40f5-99b6-cb367bcf060a",
     "canCreateAgents": false,
-    "lastActivity": "2026-04-11T22:35:00.007Z",
+    "lastActivity": "2026-04-12T13:06:00.005Z",
     "createdAt": "2026-04-11T18:07:18.217Z"
-  },
-  {
-    "id": "9658bdf2-7ba8-48d4-a013-772965acfa27",
-    "name": "Analytic Engineer Base",
-    "mission": "Build and maintain dbt models that transform raw sources into clean, tested, versioned, and documented datasets. Define and own the semantic layer — including all canonical business metrics — so downstream analysts and consumers have a single trusted source of truth. Enforce data quality through automated testing, maintain the data catalog, and treat every model as a product: if it isn't tested, documented, and reviewable, it doesn't ship.",
-    "avatarColor": "#10b981",
-    "roomId": "room-06",
-    "teamId": "data-platform-team",
-    "workspacePath": "/Users/pierredosne/dev/projects/my_team/workspaces/data-platform-team/analytic-engineer-base",
-    "worktreeOf": "/Users/pierredosne/dev/projects/data-platform-dbt",
-    "canCreateAgents": false,
-    "lastActivity": "2026-04-11T22:28:58.702Z",
-    "createdAt": "2026-04-11T22:28:58.702Z"
   },
   {
     "id": "dd0482e2-ea2b-4ee6-8a53-61ea7c45ed6a",
     "name": "Data Ops",
     "mission": "Manage and automate the data platform infrastructure: operate the Data Warehouse, ETL orchestration (Airflow/Dagster), and BI tooling; build and maintain CI/CD pipelines for dbt models and data workflows across dev/staging/prod environments; enforce data observability, alerting, access control, and cost optimization. Prioritize reliability, security, and automation to unblock the Data Platform team and keep production stable.",
     "avatarColor": "#ef4444",
-    "roomId": "room-04",
+    "roomId": "room-06",
     "teamId": "data-platform-team",
     "workspacePath": "/Users/pierredosne/dev/projects/my_team/workspaces/data-platform-team/data-ops",
+    "sessionId": "0522af72-7e7f-4ca9-b6b3-b3b9db43efbe",
     "canCreateAgents": false,
-    "lastActivity": "2026-04-11T22:34:57.887Z",
+    "lastActivity": "2026-04-12T12:38:18.357Z",
     "createdAt": "2026-04-11T22:34:57.887Z"
+  },
+  {
+    "id": "c72002f7-6819-4e2f-9710-f9d9277cfc7a",
+    "name": "Analytic Engineer",
+    "mission": "Build and maintain dbt models that transform raw sources into clean, tested, versioned, and documented datasets. Define and own the semantic layer — including all canonical business metrics — so downstream analysts and consumers have a single trusted source of truth. Enforce data quality through automated testing, maintain the data catalog, and treat every model as a product: if it isn't tested, documented, and reviewable, it doesn't ship.",
+    "avatarColor": "#10b981",
+    "roomId": "room-05",
+    "teamId": "data-platform-team",
+    "workspacePath": "/Users/pierredosne/dev/projects/my_team/workspaces/data-platform-team/analytic-engineer",
+    "worktreeOf": "/Users/pierredosne/dev/projects/data-platform-dbt",
+    "sessionId": "48b5ce79-eeae-46e5-96dc-8a9ac0d25b0a",
+    "canCreateAgents": false,
+    "lastActivity": "2026-04-12T13:02:29.710Z",
+    "createdAt": "2026-04-12T12:58:01.546Z"
   }
 ]

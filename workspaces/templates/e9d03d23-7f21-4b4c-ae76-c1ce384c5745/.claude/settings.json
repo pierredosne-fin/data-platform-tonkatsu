@@ -1,5 +1,11 @@
 {
   "permissions": {
-    "allow": []
+    "allow": [
+      "Bash(bq *)",
+      "Bash(gh*)",
+      "Bash(git*)",
+      "Bash(dbt*)",
+      "Bash(bq*)"
+    ]
   }
 }
