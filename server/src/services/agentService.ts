@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { mkdirSync, rmSync, existsSync, writeFileSync, renameSync } from 'fs';
+import { mkdirSync, rmSync, rmdirSync, existsSync, writeFileSync, renameSync } from 'fs';
 import { join } from 'path';
 import { setCreateAgentsPermission, setupWorkspaceStructure } from './fileService.js';
 import type { Agent, AgentStatus, GitSync, Message } from '../models/types.js';
@@ -214,6 +214,16 @@ export function deleteAgent(id: string): boolean {
   // Clean up workspace directory if it lives under WORKSPACES_DIR
   if (agent.workspacePath.startsWith(WORKSPACES_DIR) && existsSync(agent.workspacePath)) {
     try { rmSync(agent.workspacePath, { recursive: true, force: true }); } catch { /* ignore */ }
+  }
+  // Prune stale worktree entries — removeWorktree can fail silently when workspacePath goes
+  // through a symlink (git stores the resolved path). Prune detects the dir is gone and cleans up.
+  if (agent.worktreeOf) {
+    pruneWorktrees(agent.worktreeOf);
+  }
+  // Remove parent team dir only if it is now empty (rmdirSync fails silently if not empty)
+  const teamDir = join(WORKSPACES_DIR, agent.teamId);
+  if (teamDir !== WORKSPACES_DIR && existsSync(teamDir)) {
+    try { rmdirSync(teamDir); } catch { /* not empty — other agents still there, leave it */ }
   }
   return true;
 }

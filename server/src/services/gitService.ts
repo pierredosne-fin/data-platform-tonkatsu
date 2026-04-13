@@ -1,5 +1,5 @@
 import { execSync } from 'child_process';
-import { existsSync, readdirSync, mkdirSync, rmSync, symlinkSync, lstatSync } from 'fs';
+import { existsSync, readdirSync, mkdirSync, rmSync, symlinkSync, lstatSync, readFileSync, writeFileSync } from 'fs';
 import { join, dirname } from 'path';
 import type { GitSync } from '../models/types.js';
 import { getSshKeyPath, GLOBAL_SSH_KEY_NAME, hasGlobalSshKey, REPOS_DIR, type WorkspaceSyncConfig } from './persistenceService.js';
@@ -13,10 +13,59 @@ export function isGitRepo(dir: string): boolean {
 
 export function createWorktree(repoPath: string, worktreePath: string, branch: string): boolean {
   try {
+    // Remove stale directory if it exists but isn't a registered worktree —
+    // git worktree add will fail on a non-empty target path.
+    if (existsSync(worktreePath)) {
+      rmSync(worktreePath, { recursive: true, force: true });
+    }
     execSync(`git worktree add -b "${branch}" "${worktreePath}"`, {
       cwd: repoPath,
       stdio: 'pipe',
     });
+
+    // Exclude runtime config files from git tracking in this worktree.
+    // Uses per-worktree config.worktree + core.excludesFile (requires extensions.worktreeConfig).
+    try {
+      const gitFileContent = readFileSync(join(worktreePath, '.git'), 'utf8').trim();
+      const gitdirMatch = gitFileContent.match(/^gitdir:\s*(.+)$/);
+      if (gitdirMatch) {
+        const worktreeGitDir = gitdirMatch[1].trim();
+        const infoDir = join(worktreeGitDir, 'info');
+        mkdirSync(infoDir, { recursive: true });
+        // Patterns for untracked runtime files the server writes.
+        // .claude/ can't exclude as a directory (tracked files exist inside it), but
+        // .claude/** matches individual untracked files at any depth under .claude/.
+        const excludePatterns = [
+          '.mcp.json',
+          '.claude/**',
+          'SOUL.md',
+          'USER.md',
+          'OPS.md',
+          'MEMORY.md',
+          'TOOLS.md',
+          'memory/',
+        ].join('\n') + '\n';
+        const excludeFile = join(infoDir, 'exclude');
+        writeFileSync(excludeFile, excludePatterns, 'utf8');
+        // Enable per-worktree config on the repo (idempotent)
+        execSync('git config extensions.worktreeConfig true', { cwd: repoPath, stdio: 'pipe' });
+        // Point this worktree's core.excludesFile at our patterns file
+        const configWorktreePath = join(worktreeGitDir, 'config.worktree');
+        writeFileSync(configWorktreePath, `[core]\n\texcludesFile = ${excludeFile}\n`, 'utf8');
+        // skip-worktree on all tracked .claude/ files so local modifications are invisible to git
+        try {
+          const trackedFiles = execSync('git ls-files .claude/', { cwd: worktreePath, stdio: 'pipe' })
+            .toString().trim();
+          if (trackedFiles) {
+            const files = trackedFiles.split('\n').map(f => `"${f}"`).join(' ');
+            execSync(`git update-index --skip-worktree ${files}`, { cwd: worktreePath, stdio: 'pipe' });
+          }
+        } catch { /* no tracked .claude/ files — safe to ignore */ }
+      }
+    } catch (excludeErr) {
+      console.warn('[git] Failed to write worktree exclude:', excludeErr);
+    }
+
     return true;
   } catch (err) {
     console.warn('[git] Failed to create worktree:', err);

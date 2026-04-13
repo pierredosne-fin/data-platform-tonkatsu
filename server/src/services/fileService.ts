@@ -151,17 +151,20 @@ function copyDir(srcDir: string, destDir: string): void {
   }
 }
 
-/** Copy template workspace files (CLAUDE.md + .claude/) to an agent workspace without overwriting existing files. */
+/** Copy template workspace files (CLAUDE.md + .claude/) to an agent workspace, replacing .claude/ entirely. */
 export function copyWorkspaceFiles(srcPath: string, destPath: string): void {
   if (!existsSync(srcPath)) return;
   const claudeMd = join(srcPath, 'CLAUDE.md');
-  if (existsSync(claudeMd) && !existsSync(join(destPath, 'CLAUDE.md'))) {
+  if (existsSync(claudeMd)) {
     mkdirSync(destPath, { recursive: true });
     copyFileSync(claudeMd, join(destPath, 'CLAUDE.md'));
   }
   const claudeDir = join(srcPath, '.claude');
   if (existsSync(claudeDir)) {
-    copyDir(claudeDir, join(destPath, '.claude'));
+    // Replace destination .claude/ entirely so the template is not merged with repo content
+    const destClaudeDir = join(destPath, '.claude');
+    if (existsSync(destClaudeDir)) rmSync(destClaudeDir, { recursive: true, force: true });
+    copyDir(claudeDir, destClaudeDir);
   }
 }
 

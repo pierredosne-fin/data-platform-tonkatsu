@@ -51,7 +51,7 @@ export function createAgentRouter(io: Server) {
 
     const agent = agentService.createAgent({ ...result.data, teamId, repoUrl: effectiveRepoUrl });
     if (!agent) {
-      res.status(409).json({ error: 'No vacant rooms available' });
+      res.status(409).json({ error: effectiveRepoUrl ? 'Failed to set up agent workspace (git clone or worktree error)' : 'No vacant rooms available' });
       return;
     }
 
@@ -60,6 +60,9 @@ export function createAgentRouter(io: Server) {
         templateService.getAgentTemplateWorkspacePath(result.data.agentTemplateId),
         agent.workspacePath,
       );
+      // copyWorkspaceFiles replaces .claude/ entirely — re-apply permissions that
+      // createAgent wrote to settings.json before the template copy.
+      fileService.setCreateAgentsPermission(agent.workspacePath, agent.canCreateAgents ?? false);
     }
 
     io.emit('agent:created', agentService.toClientAgent(agent));

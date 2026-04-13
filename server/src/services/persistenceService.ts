@@ -118,6 +118,20 @@ export function saveAgents(agents: Agent[]): void {
       console.warn(`[persistence] Failed to save agents for team ${teamId}:`, err);
     }
   }
+  // Clear stale agents.json for teams that now have no agents — prevents ghost
+  // agents from being restored on restart and filling up rooms.
+  for (const teamId of getTeamIds()) {
+    if (!byTeam.has(teamId)) {
+      const path = teamRuntimePath(teamId);
+      if (existsSync(path)) {
+        try {
+          writeFileSync(path, JSON.stringify([], null, 2), 'utf-8');
+        } catch (err) {
+          console.warn(`[persistence] Failed to clear agents for team ${teamId}:`, err);
+        }
+      }
+    }
+  }
 }
 
 // ── Templates (templates.json at workspace root) ──────────────────────────────
