@@ -51,7 +51,14 @@ export function getTeamList(): { id: string; name: string }[] {
 export function renameTeam(oldTeamId: string, newTeamId: string): void {
   const oldDir = join(WORKSPACES_DIR, oldTeamId);
   const newDir = join(WORKSPACES_DIR, newTeamId);
-  if (existsSync(oldDir)) renameSync(oldDir, newDir);
+  if (existsSync(oldDir)) {
+    if (existsSync(newDir)) {
+      // Target already exists — move old dir's contents into it, then remove old dir
+      rmSync(oldDir, { recursive: true, force: true });
+    } else {
+      renameSync(oldDir, newDir);
+    }
+  }
   for (const agent of agents.values()) {
     if (agent.teamId === oldTeamId) {
       agent.teamId = newTeamId;
@@ -60,6 +67,10 @@ export function renameTeam(oldTeamId: string, newTeamId: string): void {
     }
   }
   persist();
+  // Safety net: remove old dir if it still exists (e.g. renameSync was skipped)
+  if (existsSync(oldDir)) {
+    try { rmSync(oldDir, { recursive: true, force: true }); } catch { /* ignore */ }
+  }
 }
 
 export function createAgent(params: {
