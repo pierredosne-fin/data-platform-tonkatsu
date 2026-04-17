@@ -99,6 +99,41 @@ export function setCreateAgentsPermission(workspacePath: string, enabled: boolea
   safeWrite(settingsPath, JSON.stringify(settings, null, 2));
 }
 
+export function readPermissions(workspacePath: string): string[] {
+  const settingsPath = join(workspacePath, '.claude', 'settings.json');
+  try {
+    const settings = JSON.parse(readFileSync(settingsPath, 'utf-8'));
+    const allow = (settings?.permissions?.allow);
+    return Array.isArray(allow) ? allow as string[] : [];
+  } catch {
+    return [];
+  }
+}
+
+export function writePermissions(workspacePath: string, allow: string[]): void {
+  const settingsPath = join(workspacePath, '.claude', 'settings.json');
+  let settings: Record<string, unknown> = {};
+  try {
+    settings = JSON.parse(readFileSync(settingsPath, 'utf-8'));
+  } catch { /* start fresh */ }
+  const perms = (settings.permissions as Record<string, unknown> | undefined) ?? {};
+  settings.permissions = { ...perms, allow };
+  safeWrite(settingsPath, JSON.stringify(settings, null, 2));
+}
+
+export function addPermission(workspacePath: string, permission: string): string[] {
+  const allow = readPermissions(workspacePath);
+  if (!allow.includes(permission)) allow.push(permission);
+  writePermissions(workspacePath, allow);
+  return allow;
+}
+
+export function removePermission(workspacePath: string, permission: string): string[] {
+  const allow = readPermissions(workspacePath).filter((p) => p !== permission);
+  writePermissions(workspacePath, allow);
+  return allow;
+}
+
 export function writeCommand(workspacePath: string, name: string, content: string): void {
   if (!/^[\w/-]+$/.test(name)) throw new Error('Invalid command name');
   safeWrite(join(workspacePath, '.claude', 'commands', `${name}.md`), content);

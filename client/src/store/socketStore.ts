@@ -27,8 +27,10 @@ function notifyStatusChange(agentId: string, status: AgentStatus, pendingQuestio
 
   // OS desktop notification
   if (Notification.permission === 'granted') {
-    const body = status === 'pending' && pendingQuestion ? pendingQuestion : STATUS_LABELS[status];
-    new Notification(`${agent.name} — ${STATUS_LABELS[status]}`, { body, silent: true });
+    try {
+      const body = status === 'pending' && pendingQuestion ? pendingQuestion : STATUS_LABELS[status];
+      new Notification(`${agent.name} — ${STATUS_LABELS[status]}`, { body, silent: true });
+    } catch { /* notification not supported in this context */ }
   }
 
   // Sound

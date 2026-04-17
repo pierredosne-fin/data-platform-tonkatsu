@@ -15,7 +15,7 @@ function ToastItem({ toast }: { toast: Toast }) {
   return (
     <div className={`toast ${meta.cls}`} onClick={() => dismiss(toast.id)}>
       <div className="toast-avatar" style={{ background: toast.avatarColor }}>
-        {toast.agentName[0].toUpperCase()}
+        {toast.agentName?.[0]?.toUpperCase() ?? '?'}
       </div>
       <div className="toast-body">
         <div className="toast-name">{toast.agentName}</div>

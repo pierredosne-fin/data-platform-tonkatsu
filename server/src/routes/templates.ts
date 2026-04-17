@@ -191,6 +191,22 @@ Write tailored, concise instructions that will make this agent highly effective 
     res.status(201).json(template);
   });
 
+  router.get('/agents/:id/override-settings', (req, res) => {
+    const settings = templateService.getAgentTemplateOverrideSettings(req.params.id);
+    if (settings === null) { res.status(404).json({ error: 'Agent template not found' }); return; }
+    res.json(settings);
+  });
+
+  router.put('/agents/:id/override-settings', (req, res) => {
+    if (!templateService.getAgentTemplate(req.params.id)) { res.status(404).json({ error: 'Agent template not found' }); return; }
+    if (typeof req.body !== 'object' || req.body === null || Array.isArray(req.body)) {
+      res.status(400).json({ error: 'Body must be a JSON object' });
+      return;
+    }
+    const updated = templateService.setAgentTemplateOverrideSettings(req.params.id, req.body);
+    res.json(updated);
+  });
+
   router.delete('/agents/:id', (req, res) => {
     const deleted = templateService.deleteAgentTemplate(req.params.id);
     if (!deleted) {
@@ -280,6 +296,13 @@ Write tailored, concise instructions that will make this agent highly effective 
           templateService.getAgentTemplateWorkspacePath(agentTemplate.id),
           agent.workspacePath,
         );
+        // Apply override settings on top of the copied workspace settings
+        if (agentTemplate.overrideSettings && Object.keys(agentTemplate.overrideSettings).length > 0) {
+          const existing = fileService.readWorkspaceFiles(agent.workspacePath).settings;
+          const base = existing ? JSON.parse(existing) : {};
+          const merged = { ...base, ...agentTemplate.overrideSettings };
+          fileService.writeSettings(agent.workspacePath, JSON.stringify(merged, null, 2));
+        }
         io.emit('agent:created', agentService.toClientAgent(agent));
         createdAgents.push(agentService.toClientAgent(agent));
       }

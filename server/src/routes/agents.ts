@@ -179,6 +179,50 @@ export function createAgentRouter(io: Server) {
     }
   });
 
+  // ── Permissions ────────────────────────────────────────────────────────────
+
+  router.get('/:id/permissions', (req, res) => {
+    const agent = agentService.getAgent(req.params.id);
+    if (!agent) { res.status(404).json({ error: 'Agent not found' }); return; }
+    res.json({ allow: fileService.readPermissions(agent.workspacePath) });
+  });
+
+  router.put('/:id/permissions', (req, res) => {
+    const agent = agentService.getAgent(req.params.id);
+    if (!agent) { res.status(404).json({ error: 'Agent not found' }); return; }
+    const { allow } = req.body;
+    if (!Array.isArray(allow) || !allow.every((p) => typeof p === 'string')) {
+      res.status(400).json({ error: 'allow must be an array of strings' });
+      return;
+    }
+    fileService.writePermissions(agent.workspacePath, allow);
+    res.json({ allow });
+  });
+
+  router.post('/:id/permissions', (req, res) => {
+    const agent = agentService.getAgent(req.params.id);
+    if (!agent) { res.status(404).json({ error: 'Agent not found' }); return; }
+    const { permission } = req.body;
+    if (typeof permission !== 'string' || !permission.trim()) {
+      res.status(400).json({ error: 'permission (string) required' });
+      return;
+    }
+    const allow = fileService.addPermission(agent.workspacePath, permission.trim());
+    res.json({ allow });
+  });
+
+  router.delete('/:id/permissions', (req, res) => {
+    const agent = agentService.getAgent(req.params.id);
+    if (!agent) { res.status(404).json({ error: 'Agent not found' }); return; }
+    const { permission } = req.body;
+    if (typeof permission !== 'string' || !permission.trim()) {
+      res.status(400).json({ error: 'permission (string) required' });
+      return;
+    }
+    const allow = fileService.removePermission(agent.workspacePath, permission.trim());
+    res.json({ allow });
+  });
+
   router.put('/:id/files/commands/:name(*)', (req, res) => {
     const agent = agentService.getAgent(req.params.id);
     if (!agent) { res.status(404).json({ error: 'Agent not found' }); return; }

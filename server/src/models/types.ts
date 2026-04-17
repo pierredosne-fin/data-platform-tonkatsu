@@ -56,6 +56,7 @@ export interface AgentTemplate {
   tags?: string[];
   isPublic?: boolean;
   category?: string;
+  overrideSettings?: Record<string, unknown>; // merged on top of workspace settings at instantiation
   createdAt: string;
 }
 

@@ -87,6 +87,20 @@ export function updateAgentTemplate(id: string, params: {
   return template;
 }
 
+export function getAgentTemplateOverrideSettings(id: string): Record<string, unknown> | null {
+  const template = agentTemplates.find((t) => t.id === id);
+  if (!template) return null;
+  return template.overrideSettings ?? {};
+}
+
+export function setAgentTemplateOverrideSettings(id: string, settings: Record<string, unknown>): AgentTemplate | null {
+  const template = agentTemplates.find((t) => t.id === id);
+  if (!template) return null;
+  template.overrideSettings = settings;
+  persist();
+  return template;
+}
+
 export function deleteAgentTemplate(id: string): boolean {
   const idx = agentTemplates.findIndex((t) => t.id === id);
   if (idx === -1) return false;

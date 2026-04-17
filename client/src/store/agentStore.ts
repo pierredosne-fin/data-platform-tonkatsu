@@ -28,6 +28,7 @@ interface AgentStore {
   streamBuffers: Map<string, string>;
   toolEvents: Map<string, ToolEvent[]>;
   delegationEvents: Map<string, DelegationEvent[]>;
+  activeDelegations: Map<string, string>;
   toolCallCounters: Map<string, number>;
   agentHistories: Map<string, Message[]>;
   agentSessions: Map<string, ConversationSession[]>;

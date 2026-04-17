@@ -68,6 +68,43 @@ This is a **virtual office for Claude Code agents** — a platform where multipl
 
 **Routing pattern**: every router is a factory function `createXRouter(io: Server)` that returns an Express `Router`. Zod is used for request validation.
 
+**API endpoints** (base: `http://localhost:3001`):
+
+Agent templates (`/api/templates/agents`):
+- `GET /` — list all
+- `POST /` — create
+- `PATCH /:id` — update metadata (name, mission, avatarColor, repoUrl, …)
+- `DELETE /:id` — delete
+- `GET /:id/files` — read workspace files (CLAUDE.md, settings, commands, rules, skills)
+- `PUT /:id/files/claude-md` — write CLAUDE.md `{ content }`
+- `PUT /:id/files/settings` — write `.claude/settings.json` `{ content: "<json string>" }`
+- `GET /:id/override-settings` — read override settings (merged on top of workspace settings at instantiation)
+- `PUT /:id/override-settings` — set override settings (body is the JSON object)
+- `PUT /:id/files/commands/:name` / `DELETE /:id/files/commands/:name` — manage command files
+- `PUT /:id/files/rules/:name` / `DELETE /:id/files/rules/:name` — manage rule files
+- `PUT /:id/files/skills/:name` / `DELETE /:id/files/skills/:name` — manage skill files
+- `POST /:id/generate-claude-md` — AI-generate CLAUDE.md `{ current? }`
+- `POST /from-agent/:agentId` — snapshot a live agent as a new template
+
+Team templates (`/api/templates/teams`):
+- `GET /` — list all
+- `POST /` — create `{ name, agentTemplateIds }`
+- `PATCH /:id` — update
+- `DELETE /:id` — delete
+- `POST /:id/instantiate` — spawn a team from the template `{ teamId? }`
+
+Live agents (`/api/agents`):
+- `GET /` — list all
+- `POST /` — create
+- `PATCH /:id` — update metadata
+- `DELETE /:id` — delete
+- `GET /:id/permissions` — read `{ allow: string[] }` from workspace settings
+- `PUT /:id/permissions` — replace allow list `{ allow: [...] }`
+- `POST /:id/permissions` — add one permission `{ permission }`
+- `DELETE /:id/permissions` — remove one permission `{ permission }`
+- `PUT /:id/files/settings` — write `.claude/settings.json` `{ content: "<json string>" }`
+- `PUT /:id/files/claude-md` — write CLAUDE.md `{ content }`
+
 **Socket.IO events** (server → client): `agent:list`, `agent:created`, `agent:updated`, `agent:deleted`, `team:list`, `agent:statusChanged`, `agent:stream`, `agent:history`, `agent:message`, `agent:toolCall`, `agent:toolResult`, `agent:sessions`, `agent:delegating`, `agent:delegationComplete`.
 
 **Socket.IO events** (client → server): `agent:subscribe`, `agent:unsubscribe`, `agent:sendMessage`, `agent:sleep`, `agent:newConversation`, `team:newConversation`, `agent:listSessions`, `agent:resumeSession`, `agent:moveRoom`.

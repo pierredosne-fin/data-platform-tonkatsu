@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useAgentStore } from '../store/agentStore';
 import { useSocketStore } from '../store/socketStore';
 import { Room } from './Room';
@@ -58,11 +58,12 @@ export function OfficeMap({ onAgentClick, onEmptyRoomClick, onEditAgent, onDelet
   const dragRef = useRef<DragState | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 
-  const teamAgents = currentTeamId
-    ? agents.filter((a) => a.teamId === currentTeamId)
-    : agents;
+  const teamAgents = useMemo(
+    () => (currentTeamId ? agents.filter((a) => a.teamId === currentTeamId) : agents),
+    [agents, currentTeamId],
+  );
 
-  const agentByRoom = new Map(teamAgents.map((a) => [a.roomId, a]));
+  const agentByRoom = useMemo(() => new Map(teamAgents.map((a) => [a.roomId, a])), [teamAgents]);
   agentByRoomRef.current = agentByRoom;
 
   // ── Delegation lines ──────────────────────────────────────────────────────
