@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync, chmodSync, unlinkSync } from 'fs';
-import { join, dirname, basename, isAbsolute } from 'path';
+import { join, dirname, basename, isAbsolute, relative } from 'path';
 import { fileURLToPath } from 'url';
 import type { Agent, AgentTemplate, TeamTemplate, CronSchedule, SkillTemplate, GitSync } from '../models/types.js';
 
@@ -105,8 +105,12 @@ export function saveAgents(agents: Agent[]): void {
       avatarColor: a.avatarColor,
       roomId: a.roomId,
       teamId: a.teamId,
-      workspacePath: a.workspacePath,
-      worktreeOf: a.worktreeOf,
+      workspacePath: a.workspacePath.startsWith(WORKSPACES_DIR)
+        ? relative(WORKSPACES_DIR, a.workspacePath)
+        : a.workspacePath,
+      worktreeOf: a.worktreeOf
+        ? (a.worktreeOf.startsWith(REPOS_DIR) ? relative(REPOS_DIR, a.worktreeOf) : a.worktreeOf)
+        : undefined,
       repoUrl: a.repoUrl,
       sessionId: a.sessionId,
       canCreateAgents: a.canCreateAgents,
