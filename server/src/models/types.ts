@@ -30,6 +30,7 @@ export interface Agent {
   teamId: string;
   workspacePath: string;
   worktreeOf?: string; // original repo path when this workspace is a git worktree
+  repoUrl?: string;   // SSH git URL used to create the worktree — persisted so it can be re-cloned after sync
   sessionId?: string;  // Claude Code Agent SDK session ID for conversation continuity
   canCreateAgents?: boolean;
   pendingQuestion?: string;

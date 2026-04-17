@@ -18,10 +18,18 @@ export function createWorktree(repoPath: string, worktreePath: string, branch: s
     if (existsSync(worktreePath)) {
       rmSync(worktreePath, { recursive: true, force: true });
     }
-    execSync(`git worktree add -b "${branch}" "${worktreePath}"`, {
-      cwd: repoPath,
-      stdio: 'pipe',
-    });
+    try {
+      execSync(`git worktree add -b "${branch}" "${worktreePath}"`, {
+        cwd: repoPath,
+        stdio: 'pipe',
+      });
+    } catch {
+      // Branch already exists (e.g. from a previous failed attempt) — check it out directly
+      execSync(`git worktree add "${worktreePath}" "${branch}"`, {
+        cwd: repoPath,
+        stdio: 'pipe',
+      });
+    }
 
     // Exclude runtime config files from git tracking in this worktree.
     // Uses per-worktree config.worktree + core.excludesFile (requires extensions.worktreeConfig).
@@ -215,6 +223,60 @@ export function syncFromRemote(localPath: string, gitSync: GitSync): { ok: boole
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.warn('[git] syncFromRemote failed:', msg);
+    return { ok: false, error: msg };
+  }
+}
+
+/**
+ * Sync an agent workspace that has `worktreeOf` set but no `gitSync`.
+ * Fetches from the base repo's origin and resets the worktree to origin/HEAD.
+ * Also creates the worktree if it doesn't exist yet.
+ */
+export function syncWorktreeFromBase(
+  workspacePath: string,
+  worktreeOf: string,
+): { ok: boolean; error?: string } {
+  try {
+    const env: Record<string, string> = { ...process.env as Record<string, string> };
+    if (hasGlobalSshKey()) {
+      const keyPath = getSshKeyPath(GLOBAL_SSH_KEY_NAME);
+      env['GIT_SSH_COMMAND'] = `ssh -i "${keyPath}" -o StrictHostKeyChecking=no -o BatchMode=yes`;
+    }
+
+    if (!existsSync(worktreeOf) || !isGitRepo(worktreeOf)) {
+      return { ok: false, error: 'Base repo not found. Trigger a full sync first.' };
+    }
+
+    // Create worktree if not properly set up.
+    // A proper worktree has a .git FILE (not directory) — subdirs of another git repo pass
+    // isGitRepo() but don't have their own .git file.
+    const hasWorktreeGitFile = existsSync(join(workspacePath, '.git')) &&
+      !existsSync(join(workspacePath, '.git', 'HEAD'));
+    if (!hasWorktreeGitFile) {
+      pruneWorktrees(worktreeOf);
+      const branch = `agent/restore-${Date.now().toString(36)}`;
+      mkdirSync(dirname(workspacePath), { recursive: true });
+      if (!createWorktree(worktreeOf, workspacePath, branch)) {
+        return { ok: false, error: 'Failed to create git worktree' };
+      }
+    }
+
+    // Fetch latest from remote
+    execSync('git fetch origin', { cwd: worktreeOf, env, stdio: 'pipe' });
+
+    // Resolve origin/HEAD → default branch name (e.g. "main")
+    const defaultBranch = execSync(
+      'git symbolic-ref refs/remotes/origin/HEAD',
+      { cwd: worktreeOf, stdio: 'pipe' },
+    ).toString().trim().replace('refs/remotes/origin/', '');
+
+    // Reset worktree working tree to the default remote branch
+    execSync(`git reset --hard "origin/${defaultBranch}"`, { cwd: workspacePath, env, stdio: 'pipe' });
+
+    return { ok: true };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn('[git] syncWorktreeFromBase failed:', msg);
     return { ok: false, error: msg };
   }
 }

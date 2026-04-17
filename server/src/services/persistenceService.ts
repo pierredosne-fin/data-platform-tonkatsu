@@ -80,6 +80,7 @@ export interface PersistedAgent {
   teamId: string;
   workspacePath: string;
   worktreeOf?: string;
+  repoUrl?: string;
   sessionId?: string;
   canCreateAgents?: boolean;
   gitSync?: GitSync;
@@ -106,6 +107,7 @@ export function saveAgents(agents: Agent[]): void {
       teamId: a.teamId,
       workspacePath: a.workspacePath,
       worktreeOf: a.worktreeOf,
+      repoUrl: a.repoUrl,
       sessionId: a.sessionId,
       canCreateAgents: a.canCreateAgents,
       gitSync: a.gitSync,

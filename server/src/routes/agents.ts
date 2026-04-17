@@ -6,7 +6,7 @@ import * as fileService from '../services/fileService.js';
 import * as templateService from '../services/templateService.js';
 import { runAgentTask } from '../services/claudeService.js';
 import { deleteSchedulesForAgent } from '../services/cronService.js';
-import { syncAgentRepo } from '../services/gitService.js';
+import { syncAgentRepo, syncWorktreeFromBase } from '../services/gitService.js';
 import Anthropic from '@anthropic-ai/sdk';
 import type { Server } from 'socket.io';
 
@@ -301,28 +301,34 @@ Write tailored, concise instructions that will make this agent highly effective 
   router.post('/:id/sync', (req, res) => {
     const agent = agentService.getAgent(req.params.id);
     if (!agent) { res.status(404).json({ error: 'Agent not found' }); return; }
-    if (!agent.gitSync) { res.status(400).json({ error: 'No git sync configured for this agent' }); return; }
+    if (!agent.gitSync && !agent.worktreeOf) {
+      res.status(400).json({ error: 'No git sync configured for this agent' }); return;
+    }
 
-    const result = syncAgentRepo(agent.workspacePath, agent.worktreeOf, agent.gitSync);
     const now = new Date().toISOString();
-    const updateParams: Parameters<typeof agentService.updateAgent>[1] = {
-      gitSync: {
+    const updateParams: Parameters<typeof agentService.updateAgent>[1] = {};
+
+    if (agent.gitSync) {
+      // Full gitSync config: clone/update base repo + set up worktree
+      const result = syncAgentRepo(agent.workspacePath, agent.worktreeOf, agent.gitSync);
+      updateParams.gitSync = {
         ...agent.gitSync,
         lastSyncAt: now,
         lastSyncStatus: result.ok ? 'ok' : 'error',
         lastSyncError: result.error,
-      },
-    };
-    // If a worktree was newly created, persist the base repo path
-    if (result.newWorktreeOf) updateParams.worktreeOf = result.newWorktreeOf;
-
-    const updated = agentService.updateAgent(req.params.id, updateParams);
-    if (updated) io.emit('agent:updated', agentService.toClientAgent(updated));
-
-    if (result.ok) {
-      res.json({ ok: true, syncedAt: now });
+      };
+      if (result.newWorktreeOf) updateParams.worktreeOf = result.newWorktreeOf;
+      const updated = agentService.updateAgent(req.params.id, updateParams);
+      if (updated) io.emit('agent:updated', agentService.toClientAgent(updated));
+      if (result.ok) { res.json({ ok: true, syncedAt: now }); }
+      else { res.status(422).json({ ok: false, error: result.error }); }
     } else {
-      res.status(422).json({ ok: false, error: result.error });
+      // worktreeOf only: fetch from base repo's origin and reset worktree
+      const result = syncWorktreeFromBase(agent.workspacePath, agent.worktreeOf!);
+      const updated = agentService.updateAgent(req.params.id, updateParams);
+      if (updated) io.emit('agent:updated', agentService.toClientAgent(updated));
+      if (result.ok) { res.json({ ok: true, syncedAt: now }); }
+      else { res.status(422).json({ ok: false, error: result.error }); }
     }
   });
 

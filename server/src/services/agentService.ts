@@ -1,10 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 import { mkdirSync, rmSync, rmdirSync, existsSync, writeFileSync, renameSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
 import { setCreateAgentsPermission, setupWorkspaceStructure } from './fileService.js';
 import type { Agent, AgentStatus, GitSync, Message } from '../models/types.js';
 import { assignRoom, freeRoom, swapRooms, resetAllRooms } from './roomService.js';
-import { createWorktree, removeWorktree, pruneWorktrees, cloneRepoIfNeeded } from './gitService.js';
+import { createWorktree, removeWorktree, pruneWorktrees, cloneRepoIfNeeded, isGitRepo } from './gitService.js';
 import {
   getSessionMessages,
   listSessions as sdkListSessions,
@@ -146,6 +146,7 @@ export function createAgent(params: {
     teamId,
     workspacePath,
     worktreeOf,
+    repoUrl: repoUrl || undefined,
     canCreateAgents: params.canCreateAgents ?? false,
     lastActivity: new Date(),
     createdAt: new Date(),
@@ -177,6 +178,7 @@ export function restoreAgent(persisted: PersistedAgent): Agent | null {
     teamId,
     workspacePath: persisted.workspacePath,
     worktreeOf: persisted.worktreeOf,
+    repoUrl: persisted.repoUrl,
     sessionId: persisted.sessionId,
     canCreateAgents: persisted.canCreateAgents ?? false,
     gitSync: persisted.gitSync,
@@ -185,6 +187,33 @@ export function restoreAgent(persisted: PersistedAgent): Agent | null {
   };
 
   agents.set(agent.id, agent);
+
+  // If the workspace is a git worktree, ensure the base repo and worktree exist.
+  // The base repo may be missing after a workspace re-sync on a new machine — re-clone it
+  // using the persisted repoUrl if available.
+  if (agent.worktreeOf) {
+    if (!existsSync(agent.worktreeOf) || !isGitRepo(agent.worktreeOf)) {
+      if (agent.repoUrl) {
+        const cloned = cloneRepoIfNeeded(agent.repoUrl);
+        if (cloned) agent.worktreeOf = cloned;
+      }
+    }
+    if (existsSync(agent.worktreeOf) && isGitRepo(agent.worktreeOf)) {
+      // A proper git worktree has a .git FILE (not directory). Check for that specifically —
+      // isGitRepo() alone is insufficient because subdirectories of any git repo (like agent-conf
+      // when workspaces/ is a symlink) also pass isGitRepo() via the parent's .git.
+      const hasWorktreeGitFile = existsSync(join(agent.workspacePath, '.git')) &&
+        !existsSync(join(agent.workspacePath, '.git', 'HEAD')); // file, not directory
+      if (!hasWorktreeGitFile) {
+        pruneWorktrees(agent.worktreeOf);
+        const slug = agent.name.toLowerCase().replace(/\s+/g, '-');
+        const branch = `agent/${slug}-${agent.id.slice(0, 8)}`;
+        mkdirSync(dirname(agent.workspacePath), { recursive: true });
+        createWorktree(agent.worktreeOf, agent.workspacePath, branch);
+      }
+    }
+  }
+
   // Ensure settings.json permission is in sync with persisted canCreateAgents flag
   setCreateAgentsPermission(agent.workspacePath, agent.canCreateAgents ?? false);
   // Only set up workspace structure for owned workspaces (worktrees or paths under WORKSPACES_DIR)
