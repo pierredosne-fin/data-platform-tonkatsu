@@ -1,6 +1,7 @@
 import type { Server, Socket } from 'socket.io';
 import * as agentService from '../services/agentService.js';
 import { runAgentTask } from '../services/claudeService.js';
+import { READ_ONLY } from '../config.js';
 
 export function registerHandlers(io: Server, socket: Socket): void {
   // Send full agent + team list on connect
@@ -28,12 +29,14 @@ export function registerHandlers(io: Server, socket: Socket): void {
   });
 
   socket.on('agent:sleep', ({ agentId }: { agentId: string }) => {
+    if (READ_ONLY) return;
     agentService.abortStream(agentId);
     agentService.setStatus(agentId, 'sleeping');
     io.emit('agent:statusChanged', { agentId, status: 'sleeping' });
   });
 
   socket.on('agent:newConversation', ({ agentId }: { agentId: string }) => {
+    if (READ_ONLY) return;
     const agent = agentService.getAgent(agentId);
     if (!agent || agent.status === 'working' || agent.status === 'delegating') return;
     agentService.newConversation(agentId);
@@ -41,6 +44,7 @@ export function registerHandlers(io: Server, socket: Socket): void {
   });
 
   socket.on('team:newConversation', ({ teamId }: { teamId: string }) => {
+    if (READ_ONLY) return;
     const agents = agentService.getAgentsByTeam(teamId);
     for (const agent of agents) {
       if (agent.status === 'working' || agent.status === 'delegating') continue;
@@ -56,6 +60,7 @@ export function registerHandlers(io: Server, socket: Socket): void {
   });
 
   socket.on('agent:moveRoom', ({ agentId, targetRoomId }: { agentId: string; targetRoomId: string }) => {
+    if (READ_ONLY) return;
     const moved = agentService.swapAgentRooms(agentId, targetRoomId);
     if (moved) {
       io.emit('agent:list', agentService.getAllAgents().map(agentService.toClientAgent));

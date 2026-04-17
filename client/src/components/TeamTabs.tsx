@@ -7,9 +7,10 @@ interface Props {
   onCreateTeam: (teamId: string) => void;
   onDeleteTeam: (teamId: string) => void;
   onOpenTemplates?: () => void;
+  readOnly?: boolean;
 }
 
-export function TeamTabs({ onCreateTeam, onDeleteTeam, onOpenTemplates }: Props) {
+export function TeamTabs({ onCreateTeam, onDeleteTeam, onOpenTemplates, readOnly }: Props) {
   const teams = useAgentStore((s) => s.teams);
   const currentTeamId = useAgentStore((s) => s.currentTeamId);
   const setCurrentTeam = useAgentStore((s) => s.setCurrentTeam);
@@ -136,7 +137,7 @@ export function TeamTabs({ onCreateTeam, onDeleteTeam, onOpenTemplates }: Props)
           onDrop={() => onDrop(team.id)}
           onDragEnd={cleanup}
           onClick={() => { if (editingTeamId !== team.id) setCurrentTeam(team.id); }}
-          onDoubleClick={() => startRename(team)}
+          onDoubleClick={() => { if (!readOnly) startRename(team); }}
         >
           {editingTeamId === team.id ? (
             <input
@@ -157,7 +158,7 @@ export function TeamTabs({ onCreateTeam, onDeleteTeam, onOpenTemplates }: Props)
             team.name
           )}
           <span className="team-tab-count">{agentCountByTeam(team.id)}</span>
-          {team.id === currentTeamId && (
+          {team.id === currentTeamId && !readOnly && (
             <>
               <span
                 className="team-tab-new"
@@ -173,20 +174,22 @@ export function TeamTabs({ onCreateTeam, onDeleteTeam, onOpenTemplates }: Props)
               >↺ New</span>
             </>
           )}
-          <span
-            className="team-tab-delete"
-            title={`Delete ${team.name}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (confirm(`Delete team "${team.name}" and all its agents?`)) {
-                onDeleteTeam(team.id);
-              }
-            }}
-          >✕</span>
+          {!readOnly && (
+            <span
+              className="team-tab-delete"
+              title={`Delete ${team.name}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (confirm(`Delete team "${team.name}" and all its agents?`)) {
+                  onDeleteTeam(team.id);
+                }
+              }}
+            >✕</span>
+          )}
         </div>
       ))}
 
-      {creating ? (
+      {!readOnly && (creating ? (
         <div className="team-tab-new-input">
           <input
             autoFocus
@@ -214,7 +217,7 @@ export function TeamTabs({ onCreateTeam, onDeleteTeam, onOpenTemplates }: Props)
         <button className="team-tab team-tab--add" onClick={() => setCreating(true)}>
           + New Team
         </button>
-      )}
+      ))}
     </div>
   );
 }

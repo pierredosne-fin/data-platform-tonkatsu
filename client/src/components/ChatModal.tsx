@@ -16,11 +16,12 @@ const TOOL_ICONS: Record<string, string> = {
 interface Props {
   agentId: string;
   onClose: () => void;
-  onDelete: (agentId: string) => void;
+  onDelete?: (agentId: string) => void;
   onEdit?: (agentId: string) => void;
+  readOnly?: boolean;
 }
 
-export function ChatModal({ agentId, onClose, onDelete, onEdit }: Props) {
+export function ChatModal({ agentId, onClose, onDelete, onEdit, readOnly }: Props) {
   const agent = useAgentStore((s) => s.agents.find((a) => a.id === agentId));
   const allAgents = useAgentStore((s) => {
     const current = s.agents.find((a) => a.id === agentId);
@@ -192,6 +193,7 @@ export function ChatModal({ agentId, onClose, onDelete, onEdit }: Props) {
   // ── Delete ──────────────────────────────────────────────────────────────
 
   function handleDelete() {
+    if (!onDelete) return;
     if (confirm(`Delete agent "${agent.name}"?`)) {
       onDelete(agentId);
       onClose();
@@ -238,32 +240,40 @@ export function ChatModal({ agentId, onClose, onDelete, onEdit }: Props) {
             {agent.status === 'working' && (
               <button className="btn btn-ghost btn-sm" onClick={() => sleepAgent(agentId)}>■ Stop</button>
             )}
-            <button
-              className="btn btn-ghost btn-sm"
-              onClick={handleNewConversation}
-              disabled={isDisabled}
-              title="Start a new conversation (archives current)"
-            >
-              ✦ New
-            </button>
-            <button
-              className="btn btn-ghost btn-sm"
-              onClick={() => setScheduleOpen(true)}
-              title="Manage schedules"
-            >
-              ⏰
-            </button>
-            <button
-              className="btn btn-ghost btn-sm"
-              onClick={handleSaveAsTemplate}
-              title="Save as template"
-            >
-              {savedTemplate ? '✓ Saved' : '⊞ Template'}
-            </button>
-            {onEdit && (
+            {!readOnly && (
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={handleNewConversation}
+                disabled={isDisabled}
+                title="Start a new conversation (archives current)"
+              >
+                ✦ New
+              </button>
+            )}
+            {!readOnly && (
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => setScheduleOpen(true)}
+                title="Manage schedules"
+              >
+                ⏰
+              </button>
+            )}
+            {!readOnly && (
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={handleSaveAsTemplate}
+                title="Save as template"
+              >
+                {savedTemplate ? '✓ Saved' : '⊞ Template'}
+              </button>
+            )}
+            {!readOnly && onEdit && (
               <button className="btn btn-ghost btn-sm" onClick={() => onEdit(agentId)} title="Edit agent">✎</button>
             )}
-            <button className="btn btn-danger btn-sm" onClick={handleDelete}>🗑</button>
+            {!readOnly && (
+              <button className="btn btn-danger btn-sm" onClick={handleDelete}>🗑</button>
+            )}
             <button className="modal-close" onClick={onClose}>✕</button>
           </div>
         </div>

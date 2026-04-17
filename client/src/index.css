@@ -222,6 +222,8 @@ html, body, #root {
 .hud-connection--on  { color: var(--green); }
 .hud-connection--off { color: var(--red); }
 
+.hud-readonly-badge { font-size: 12px; font-weight: 600; color: var(--text-dim); background: rgba(160,174,192,0.12); border: 1px solid rgba(160,174,192,0.2); padding: 3px 8px; border-radius: 4px; }
+
 /* ── Buttons ──────────────────────────────────── */
 .btn {
   display: inline-flex;

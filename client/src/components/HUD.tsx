@@ -7,9 +7,10 @@ interface Props {
   onOpenTemplates: () => void;
   onOpenSync: () => void;
   connected: boolean;
+  readOnly?: boolean;
 }
 
-export function HUD({ onAddAgent, onOpenTemplates, onOpenSync, connected }: Props) {
+export function HUD({ onAddAgent, onOpenTemplates, onOpenSync, connected, readOnly }: Props) {
   const agents = useAgentStore((s) => s.agents);
   const currentTeamId = useAgentStore((s) => s.currentTeamId);
   const teamAgentCount = agents.filter((a) => a.teamId === currentTeamId).length;
@@ -87,20 +88,29 @@ export function HUD({ onAddAgent, onOpenTemplates, onOpenSync, connected }: Prop
         {notifPerm === 'granted' && (
           <span className="hud-notif-on" title="Desktop notifications enabled">🔔</span>
         )}
-        <button className="btn btn-ghost" onClick={onOpenSync} title="Configure workspace git sync">
-          ↓ Sync
-        </button>
-        <button className="btn btn-ghost" onClick={onOpenTemplates}>
-          Templates
-        </button>
-        <button
-          className="btn btn-primary"
-          onClick={onAddAgent}
-          disabled={full}
-          title={full ? `All ${ROOMS_PER_TEAM} offices occupied` : 'Create a new agent'}
-        >
-          + Add Agent
-        </button>
+        {readOnly && (
+          <span className="hud-readonly-badge" title="Read-only mode: modifications are disabled">🔒 Read-only</span>
+        )}
+        {!readOnly && (
+          <button className="btn btn-ghost" onClick={onOpenSync} title="Configure workspace git sync">
+            ↓ Sync
+          </button>
+        )}
+        {!readOnly && (
+          <button className="btn btn-ghost" onClick={onOpenTemplates}>
+            Templates
+          </button>
+        )}
+        {!readOnly && (
+          <button
+            className="btn btn-primary"
+            onClick={onAddAgent}
+            disabled={full}
+            title={full ? `All ${ROOMS_PER_TEAM} offices occupied` : 'Create a new agent'}
+          >
+            + Add Agent
+          </button>
+        )}
       </div>
     </header>
   );

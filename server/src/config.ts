@@ -21,3 +21,4 @@ try {
 }
 
 export const PORT = Number(process.env.PORT ?? 3001);
+export const READ_ONLY = process.env.READ_ONLY === 'true' || process.env.READ_ONLY === '1';

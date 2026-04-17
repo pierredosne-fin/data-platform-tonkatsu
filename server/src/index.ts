@@ -2,7 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
-import { PORT } from './config.js';
+import { PORT, READ_ONLY } from './config.js';
 import { createAgentRouter, createRoomsRouter, createTeamsRouter } from './routes/agents.js';
 import { createWorkspacesRouter } from './routes/workspaces.js';
 import { createTemplatesRouter } from './routes/templates.js';
@@ -36,6 +36,20 @@ const io = new Server(httpServer, {
 
 app.use(cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173'] }));
 app.use(express.json());
+
+app.get('/api/config', (_req, res) => {
+  res.json({ readOnly: READ_ONLY });
+});
+
+if (READ_ONLY) {
+  console.log('[startup] READ_ONLY mode enabled — write operations are disabled');
+  app.use((req, res, next) => {
+    if (req.method === 'GET' || req.method === 'OPTIONS') return next();
+    // Allow sending messages to agents via REST trigger
+    if (req.method === 'POST' && /^\/api\/agents\/[^/]+\/trigger$/.test(req.path)) return next();
+    res.status(403).json({ error: 'Read-only mode: modifications are disabled' });
+  });
+}
 
 app.use('/api/agents', createAgentRouter(io));
 app.use('/api/rooms', createRoomsRouter());

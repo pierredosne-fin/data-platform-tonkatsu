@@ -4,6 +4,7 @@ import { useAgentStore } from './store/agentStore';
 import { useSocketStore } from './store/socketStore';
 import { useTemplateStore } from './store/templateStore';
 import { useSkillStore } from './store/skillStore';
+import { useConfigStore } from './store/configStore';
 import { HUD } from './components/HUD';
 import { TeamTabs } from './components/TeamTabs';
 import { OfficeMap } from './components/OfficeMap';
@@ -16,6 +17,8 @@ import { WorkspaceSyncModal } from './components/WorkspaceSyncModal';
 
 export default function App() {
   const { connected } = useSocket();
+  const readOnly = useConfigStore((s) => s.readOnly);
+  const fetchConfig = useConfigStore((s) => s.fetchConfig);
   const currentTeamId = useAgentStore((s) => s.currentTeamId);
   const setCurrentTeam = useAgentStore((s) => s.setCurrentTeam);
   const [showCreate, setShowCreate] = useState(false);
@@ -26,6 +29,7 @@ export default function App() {
   const agents = useAgentStore((s) => s.agents);
 
   useEffect(() => {
+    fetchConfig();
     useTemplateStore.getState().fetchAll();
     useSkillStore.getState().fetchAll();
   }, []);
@@ -91,19 +95,19 @@ export default function App() {
 
   return (
     <div className="app">
-      <HUD onAddAgent={() => setShowCreate(true)} onOpenTemplates={() => setShowTemplates(true)} onOpenSync={() => setShowSync(true)} connected={connected} />
-      <TeamTabs onCreateTeam={handleCreateTeam} onDeleteTeam={handleDeleteTeam} onOpenTemplates={() => setShowTemplates(true)} />
+      <HUD onAddAgent={() => setShowCreate(true)} onOpenTemplates={() => setShowTemplates(true)} onOpenSync={() => setShowSync(true)} connected={connected} readOnly={readOnly} />
+      <TeamTabs onCreateTeam={handleCreateTeam} onDeleteTeam={handleDeleteTeam} onOpenTemplates={() => setShowTemplates(true)} readOnly={readOnly} />
       <div className="main">
         <OfficeMap
           onAgentClick={(id) => setChatAgentId(id)}
-          onEmptyRoomClick={() => setShowCreate(true)}
-          onEditAgent={(id) => setEditAgentId(id)}
-          onDeleteAgent={handleDelete}
+          onEmptyRoomClick={readOnly ? undefined : () => setShowCreate(true)}
+          onEditAgent={readOnly ? undefined : (id) => setEditAgentId(id)}
+          onDeleteAgent={readOnly ? undefined : handleDelete}
         />
         <AgentSidebar onAgentClick={(id) => setChatAgentId(id)} />
       </div>
 
-      {showCreate && (
+      {showCreate && !readOnly && (
         <CreateAgentModal
           onClose={() => setShowCreate(false)}
           onCreate={handleCreate}
@@ -111,7 +115,7 @@ export default function App() {
         />
       )}
 
-      {editAgentId && (() => {
+      {editAgentId && !readOnly && (() => {
         const agent = agents.find((a) => a.id === editAgentId);
         return agent ? (
           <CreateAgentModal
@@ -127,8 +131,9 @@ export default function App() {
         <ChatModal
           agentId={chatAgentId}
           onClose={() => setChatAgentId(null)}
-          onDelete={handleDelete}
-          onEdit={(id) => { setChatAgentId(null); setEditAgentId(id); }}
+          onDelete={readOnly ? undefined : handleDelete}
+          onEdit={readOnly ? undefined : (id) => { setChatAgentId(null); setEditAgentId(id); }}
+          readOnly={readOnly}
         />
       )}
 

@@ -115,7 +115,7 @@ export function Room({
           </div>
         ) : (
           <span className="room-vacant-text">
-            {onEmptyRoomClick ? '+' : 'Vacant'}
+            {onEmptyRoomClick ? '+' : ''}
           </span>
         )}
       </div>
