@@ -218,3 +218,60 @@ export function syncFromRemote(localPath: string, gitSync: GitSync): { ok: boole
     return { ok: false, error: msg };
   }
 }
+
+/**
+ * Sync an agent workspace from a remote git repo using the same flow as agent creation:
+ * 1. Clone/update the base repo into repos/<slug>/
+ * 2. Set up a git worktree for the agent workspace (with .claude/ untracking)
+ *
+ * Returns `newWorktreeOf` when a worktree is newly created (caller should persist it).
+ */
+export function syncAgentRepo(
+  workspacePath: string,
+  worktreeOf: string | undefined,
+  gitSync: GitSync,
+): { ok: boolean; error?: string; newWorktreeOf?: string } {
+  try {
+    const env: Record<string, string> = { ...process.env as Record<string, string> };
+    if (gitSync.authMethod === 'ssh' && gitSync.sshKeyName) {
+      const keyPath = getSshKeyPath(gitSync.sshKeyName);
+      env['GIT_SSH_COMMAND'] = `ssh -i "${keyPath}" -o StrictHostKeyChecking=no -o BatchMode=yes`;
+    }
+
+    // Step 1: Clone or update the base repo at repos/<slug>/
+    const slug = repoSlugFromUrl(gitSync.remoteUrl);
+    const clonedPath = join(REPOS_DIR, slug);
+
+    if (existsSync(clonedPath) && isGitRepo(clonedPath)) {
+      execSync(`git fetch origin`, { cwd: clonedPath, env, stdio: 'pipe' });
+      execSync(`git reset --hard "origin/${gitSync.branch}"`, { cwd: clonedPath, env, stdio: 'pipe' });
+      execSync(`git clean -fd`, { cwd: clonedPath, env, stdio: 'pipe' });
+    } else {
+      mkdirSync(dirname(clonedPath), { recursive: true });
+      execSync(
+        `git clone --branch "${gitSync.branch}" "${gitSync.remoteUrl}" "${clonedPath}"`,
+        { env, stdio: 'pipe' },
+      );
+    }
+
+    // Step 2: Ensure the agent workspace is a proper worktree of the base repo
+    if (worktreeOf === clonedPath && isGitRepo(workspacePath)) {
+      // Already set up — just reset working tree to latest remote content
+      execSync(`git reset --hard "origin/${gitSync.branch}"`, { cwd: workspacePath, env, stdio: 'pipe' });
+      return { ok: true };
+    }
+
+    // First sync (or base repo path changed): create worktree with full .claude/ exclusion setup
+    pruneWorktrees(clonedPath);
+    const branch = `agent/sync-${Date.now().toString(36)}`;
+    mkdirSync(dirname(workspacePath), { recursive: true });
+    if (createWorktree(clonedPath, workspacePath, branch)) {
+      return { ok: true, newWorktreeOf: clonedPath };
+    }
+    return { ok: false, error: 'Failed to create git worktree for agent workspace' };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn('[git] syncAgentRepo failed:', msg);
+    return { ok: false, error: msg };
+  }
+}

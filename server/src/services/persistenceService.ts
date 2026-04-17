@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync, chmodSync, unlinkSync } from 'fs';
-import { join, dirname, basename } from 'path';
+import { join, dirname, basename, isAbsolute } from 'path';
 import { fileURLToPath } from 'url';
 import type { Agent, AgentTemplate, TeamTemplate, CronSchedule, SkillTemplate, GitSync } from '../models/types.js';
 
@@ -241,6 +241,13 @@ export function loadAllAgents(): PersistedAgent[] {
       const agents = JSON.parse(readFileSync(path, 'utf-8')) as PersistedAgent[];
       for (const a of agents) {
         if (!a.teamId) a.teamId = DEFAULT_TEAM;
+        // Resolve relative paths (e.g. from workspace-synced repos) to absolute
+        if (a.workspacePath && !isAbsolute(a.workspacePath)) {
+          a.workspacePath = join(WORKSPACES_DIR, a.workspacePath);
+        }
+        if (a.worktreeOf && !isAbsolute(a.worktreeOf)) {
+          a.worktreeOf = join(REPOS_DIR, a.worktreeOf);
+        }
         all.push(a);
       }
     } catch (err) {

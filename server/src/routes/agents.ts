@@ -6,7 +6,7 @@ import * as fileService from '../services/fileService.js';
 import * as templateService from '../services/templateService.js';
 import { runAgentTask } from '../services/claudeService.js';
 import { deleteSchedulesForAgent } from '../services/cronService.js';
-import { syncFromRemote } from '../services/gitService.js';
+import { syncAgentRepo } from '../services/gitService.js';
 import Anthropic from '@anthropic-ai/sdk';
 import type { Server } from 'socket.io';
 
@@ -303,16 +303,20 @@ Write tailored, concise instructions that will make this agent highly effective 
     if (!agent) { res.status(404).json({ error: 'Agent not found' }); return; }
     if (!agent.gitSync) { res.status(400).json({ error: 'No git sync configured for this agent' }); return; }
 
-    const result = syncFromRemote(agent.workspacePath, agent.gitSync);
+    const result = syncAgentRepo(agent.workspacePath, agent.worktreeOf, agent.gitSync);
     const now = new Date().toISOString();
-    const updated = agentService.updateAgent(req.params.id, {
+    const updateParams: Parameters<typeof agentService.updateAgent>[1] = {
       gitSync: {
         ...agent.gitSync,
         lastSyncAt: now,
         lastSyncStatus: result.ok ? 'ok' : 'error',
         lastSyncError: result.error,
       },
-    });
+    };
+    // If a worktree was newly created, persist the base repo path
+    if (result.newWorktreeOf) updateParams.worktreeOf = result.newWorktreeOf;
+
+    const updated = agentService.updateAgent(req.params.id, updateParams);
     if (updated) io.emit('agent:updated', agentService.toClientAgent(updated));
 
     if (result.ok) {

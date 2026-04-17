@@ -195,7 +195,7 @@ export function restoreAgent(persisted: PersistedAgent): Agent | null {
   return agent;
 }
 
-export function updateAgent(id: string, params: { name?: string; mission?: string; avatarColor?: string; canCreateAgents?: boolean; gitSync?: GitSync | null }): Agent | null {
+export function updateAgent(id: string, params: { name?: string; mission?: string; avatarColor?: string; canCreateAgents?: boolean; gitSync?: GitSync | null; worktreeOf?: string }): Agent | null {
   const agent = agents.get(id);
   if (!agent) return null;
   if (params.name !== undefined) agent.name = params.name;
@@ -207,6 +207,9 @@ export function updateAgent(id: string, params: { name?: string; mission?: strin
   }
   if ('gitSync' in params) {
     agent.gitSync = params.gitSync ?? undefined;
+  }
+  if (params.worktreeOf !== undefined) {
+    agent.worktreeOf = params.worktreeOf;
   }
   persist();
   return agent;
