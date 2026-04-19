@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import Layout from '@theme/Layout';
 import styles from './index.module.css';
 
@@ -8,7 +9,7 @@ function Hero() {
   return (
     <section className={styles.hero}>
       <div className={styles.heroInner}>
-        <img src="/img/tonkatsu.png" alt="Tonkatsu" className={styles.heroLogo} />
+        <img src={useBaseUrl('/img/tonkatsu.png')} alt="Tonkatsu" className={styles.heroLogo} />
         <h1 className={styles.heroTitle}>
           Your AI team,{' '}
           <span className={styles.heroTitleAccent}>always at work</span>
@@ -43,7 +44,7 @@ function Hero() {
               <span className={styles.screenshotUrl} />
             </div>
             <div className={styles.screenshotBody}>
-              <img src="/img/tonkatsu_com.png" alt="Tonkatsu virtual office grid" className={styles.screenshotImg} />
+              <img src={useBaseUrl('/img/tonkatsu_com.png')} alt="Tonkatsu virtual office grid" className={styles.screenshotImg} />
             </div>
           </div>
         </div>
@@ -150,7 +151,7 @@ function HowItWorks() {
           </div>
           <div className={styles.showcaseScreenshot}>
             <video
-              src="/img/tonkatsu_animation.mov"
+              src={useBaseUrl('/img/tonkatsu_animation.mov')}
               autoPlay
               loop
               muted
@@ -199,7 +200,7 @@ function Screenshot() {
             </div>
           </div>
           <div className={styles.showcaseScreenshot}>
-            <img src="/img/tonkatsu_home.png" alt="Tonkatsu agent chat in action" className={styles.showcaseImg} />
+            <img src={useBaseUrl('/img/tonkatsu_home.png')} alt="Tonkatsu agent chat in action" className={styles.showcaseImg} />
           </div>
         </div>
       </div>
@@ -211,7 +212,7 @@ function CTA() {
   return (
     <section className={styles.ctaSection}>
       <div className={styles.ctaInner}>
-        <img src="/img/tonkatsu.png" alt="" className={styles.ctaLogo} aria-hidden />
+        <img src={useBaseUrl('/img/tonkatsu.png')} alt="" className={styles.ctaLogo} aria-hidden />
         <h2 className={styles.ctaTitle}>Ready to build your AI team?</h2>
         <p className={styles.ctaSub}>Open-source. Self-hosted. Your API key never leaves your server.</p>
         <div className={styles.heroCtas}>
