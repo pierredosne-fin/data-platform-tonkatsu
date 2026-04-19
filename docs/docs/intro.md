@@ -5,7 +5,7 @@ sidebar_position: 1
 ---
 
 <div style={{textAlign: 'center', margin: '2rem 0 2.5rem'}}>
-  <img src="/img/tonkatsu.png" alt="Tonkatsu" style={{height: '140px', borderRadius: '0.75rem'}} />
+  <img src={require("@site/static/img/tonkatsu.png").default} alt="Tonkatsu" style={{height: '140px', borderRadius: '0.75rem'}} />
   <h1 style={{fontSize: '2.5rem', fontWeight: 800, letterSpacing: '-0.03em', marginTop: '1rem', marginBottom: '0.25rem'}}>Tonkatsu</h1>
   <p style={{fontSize: '1.1rem', opacity: 0.6, marginBottom: 0}}>A virtual office for AI assistants</p>
 </div>
