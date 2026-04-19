@@ -8,7 +8,7 @@ const config: Config = {
   favicon: 'img/tonkatsu.png',
 
   url: 'https://pierredosne-fin.github.io',
-  baseUrl: '/data-platform-tonkatsu/',
+  baseUrl: '/tonkatsu-ai/',
 
   onBrokenLinks: 'throw',
   markdown: {
