@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/pierredosne-fin/data-platform-tonkatsu/compare/v1.1.0...v1.1.1) (2026-04-19)
+
+
+### Bug Fixes
+
+* trigger docs deploy on any push to main, remove paths filter ([013be89](https://github.com/pierredosne-fin/data-platform-tonkatsu/commit/013be89d7e5cc64062d07b737dc15b1ec370ea2f))
+
 # [1.1.0](https://github.com/pierredosne-fin/data-platform-tonkatsu/compare/v1.0.1...v1.1.0) (2026-04-19)
 
 
