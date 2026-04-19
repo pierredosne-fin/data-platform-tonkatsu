@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/pierredosne-fin/data-platform-tonkatsu/compare/v1.0.1...v1.1.0) (2026-04-19)
+
+
+### Features
+
+* add Docusaurus build and GitHub Pages deploy workflow ([98216f9](https://github.com/pierredosne-fin/data-platform-tonkatsu/commit/98216f9864bfbec5ad896fa732e04b7b7a8c9f03))
+
 ## [1.0.1](https://github.com/pierredosne-fin/data-platform-tonkatsu/compare/v1.0.0...v1.0.1) (2026-04-19)
 
 
