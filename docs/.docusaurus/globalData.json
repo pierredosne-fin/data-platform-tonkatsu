@@ -1,0 +1,88 @@
+{
+  "docusaurus-plugin-content-docs": {
+    "default": {
+      "path": "/docs",
+      "versions": [
+        {
+          "name": "current",
+          "label": "Next",
+          "isLast": true,
+          "path": "/docs",
+          "mainDocId": "intro",
+          "docs": [
+            {
+              "id": "api/rest-api",
+              "path": "/docs/api/rest-api",
+              "sidebar": "docs"
+            },
+            {
+              "id": "api/socket-events",
+              "path": "/docs/api/socket-events",
+              "sidebar": "docs"
+            },
+            {
+              "id": "architecture/agent-workspace",
+              "path": "/docs/architecture/agent-workspace",
+              "sidebar": "docs"
+            },
+            {
+              "id": "architecture/client",
+              "path": "/docs/architecture/client",
+              "sidebar": "docs"
+            },
+            {
+              "id": "architecture/overview",
+              "path": "/docs/architecture/overview",
+              "sidebar": "docs"
+            },
+            {
+              "id": "architecture/server",
+              "path": "/docs/architecture/server",
+              "sidebar": "docs"
+            },
+            {
+              "id": "examples/first-agent",
+              "path": "/docs/examples/first-agent",
+              "sidebar": "docs"
+            },
+            {
+              "id": "examples/multi-agent-team",
+              "path": "/docs/examples/multi-agent-team",
+              "sidebar": "docs"
+            },
+            {
+              "id": "examples/repo-backed-agent",
+              "path": "/docs/examples/repo-backed-agent",
+              "sidebar": "docs"
+            },
+            {
+              "id": "examples/scheduled-tasks",
+              "path": "/docs/examples/scheduled-tasks",
+              "sidebar": "docs"
+            },
+            {
+              "id": "getting-started",
+              "path": "/docs/getting-started",
+              "sidebar": "docs"
+            },
+            {
+              "id": "intro",
+              "path": "/docs/intro",
+              "sidebar": "docs"
+            }
+          ],
+          "draftIds": [],
+          "sidebars": {
+            "docs": {
+              "link": {
+                "path": "/docs/intro",
+                "label": "intro"
+              }
+            }
+          }
+        }
+      ],
+      "breadcrumbs": true
+    }
+  }
+}

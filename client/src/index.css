@@ -2,19 +2,27 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #0f172a;
-  --surface: #1e293b;
-  --surface2: #273549;
-  --border: #334155;
-  --text: #e2e8f0;
-  --text-dim: #64748b;
-  --accent: #6366f1;
-  --accent-hover: #818cf8;
+  --bg: #0f0d17;
+  --surface: #17142a;
+  --surface2: #1e1a35;
+  --border: #2e2a45;
+  --text: #e2dff0;
+  --text-dim: #9d97b5;
+  --accent: #8b5cf6;
+  --accent-hover: #a78bfa;
   --green: #10b981;
   --orange: #f59e0b;
   --red: #ef4444;
   --radius: 12px;
   --radius-sm: 8px;
+}
+
+.hud-logo {
+  height: 28px;
+  border-radius: 6px;
+  margin-right: 8px;
+  filter: drop-shadow(0 0 6px rgba(167, 139, 250, 0.45));
+  flex-shrink: 0;
 }
 
 html, body, #root {

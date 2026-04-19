@@ -1,11 +1,12 @@
 {
-  "name": "my-team",
+  "name": "tonkatsu",
   "version": "1.0.0",
   "private": true,
   "workspaces": ["client", "server"],
   "scripts": {
     "dev": "concurrently --kill-others --kill-others-on-fail -n client,server -c cyan,yellow \"npm run dev -w client\" \"npm run dev -w server\"",
-    "build": "npm run build -w client && npm run build -w server"
+    "build": "npm run build -w client && npm run build -w server",
+    "docs:dev": "npm --prefix docs run start"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

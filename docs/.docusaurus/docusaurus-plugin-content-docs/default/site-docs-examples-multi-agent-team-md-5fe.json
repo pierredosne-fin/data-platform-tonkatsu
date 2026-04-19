@@ -1,0 +1,28 @@
+{
+  "id": "examples/multi-agent-team",
+  "title": "Multi-Agent Team",
+  "description": "This example sets up a two-agent team where a project manager delegates research tasks to an analyst.",
+  "source": "@site/docs/examples/multi-agent-team.md",
+  "sourceDirName": "examples",
+  "slug": "/examples/multi-agent-team",
+  "permalink": "/docs/examples/multi-agent-team",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "id": "multi-agent-team",
+    "title": "Multi-Agent Team",
+    "sidebar_position": 2
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Your First Agent",
+    "permalink": "/docs/examples/first-agent"
+  },
+  "next": {
+    "title": "Repo-Backed Agent",
+    "permalink": "/docs/examples/repo-backed-agent"
+  }
+}

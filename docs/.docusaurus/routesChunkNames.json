@@ -1,0 +1,113 @@
+{
+  "/__docusaurus/debug-5ff": {
+    "__comp": "__comp---theme-debug-config-23-a-2ff",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    }
+  },
+  "/__docusaurus/debug/config-5ba": {
+    "__comp": "__comp---theme-debug-config-23-a-2ff",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    }
+  },
+  "/__docusaurus/debug/content-a2b": {
+    "__comp": "__comp---theme-debug-contentba-8-ce7",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    },
+    "__props": "__props---docusaurus-debug-content-3-c-0-be2"
+  },
+  "/__docusaurus/debug/globalData-c3c": {
+    "__comp": "__comp---theme-debug-global-dataede-0fa",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    }
+  },
+  "/__docusaurus/debug/metadata-156": {
+    "__comp": "__comp---theme-debug-site-metadata-68-e-3d4",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    }
+  },
+  "/__docusaurus/debug/registry-88c": {
+    "__comp": "__comp---theme-debug-registry-679-501",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    }
+  },
+  "/__docusaurus/debug/routes-000": {
+    "__comp": "__comp---theme-debug-routes-946-699",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    }
+  },
+  "/docs-7df": {
+    "__comp": "__comp---theme-docs-root-5-e-9-0b6",
+    "__context": {
+      "plugin": "plugin---docsaba-d7c"
+    }
+  },
+  "/docs-9e2": {
+    "__comp": "__comp---theme-doc-version-roota-7-b-5de",
+    "__props": "__props---docs-005-788"
+  },
+  "/docs-d87": {
+    "__comp": "__comp---theme-doc-roota-94-67a"
+  },
+  "/docs/api/rest-api-183": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-api-rest-apic-47-e65"
+  },
+  "/docs/api/socket-events-8b2": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-api-socket-events-34-f-f64"
+  },
+  "/docs/architecture/agent-workspace-e49": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-architecture-agent-workspace-926-466"
+  },
+  "/docs/architecture/client-7f2": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-architecture-client-225-ec7"
+  },
+  "/docs/architecture/overview-304": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-architecture-overview-0-b-1-a4c"
+  },
+  "/docs/architecture/server-604": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-architecture-server-45-d-5fc"
+  },
+  "/docs/examples/first-agent-5a2": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-examples-first-agenta-9-f-62a"
+  },
+  "/docs/examples/multi-agent-team-c6d": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-examples-multi-agent-team-5-fe-a58"
+  },
+  "/docs/examples/repo-backed-agent-d4f": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-examples-repo-backed-agent-38-a-b28"
+  },
+  "/docs/examples/scheduled-tasks-d95": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-examples-scheduled-tasks-543-f9f"
+  },
+  "/docs/getting-started-565": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-getting-startedd-58-f94"
+  },
+  "/docs/intro-a6e": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-intro-0-e-3-be1"
+  },
+  "/-e5f": {
+    "__comp": "__comp---site-src-pages-index-tsx-1-df-d3e",
+    "__context": {
+      "plugin": "plugin---a-74-9d6"
+    },
+    "config": "config---5-e-9-4f3"
+  }
+}

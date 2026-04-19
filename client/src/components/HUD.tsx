@@ -21,14 +21,14 @@ export function HUD({ onAddAgent, onOpenTemplates, onOpenSync, connected, readOn
   const ROOMS_PER_TEAM = 10;
   const full = teamAgentCount >= ROOMS_PER_TEAM;
   const [notifPerm, setNotifPerm] = useState<NotificationPermission>('default');
-  const [title, setTitle] = useState(() => localStorage.getItem('app-title') ?? 'My Team');
+  const [title, setTitle] = useState(() => localStorage.getItem('app-title') ?? 'Tonkatsu');
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState('');
 
-  useEffect(() => { document.title = `🏢 ${title}`; }, [title]);
+  useEffect(() => { document.title = title; }, [title]);
 
   const commitTitle = () => {
-    const t = titleDraft.trim() || 'My Team';
+    const t = titleDraft.trim() || 'Tonkatsu';
     setTitle(t);
     localStorage.setItem('app-title', t);
     setEditingTitle(false);
@@ -61,7 +61,7 @@ export function HUD({ onAddAgent, onOpenTemplates, onOpenSync, connected, readOn
             onDoubleClick={() => { setTitleDraft(title); setEditingTitle(true); }}
             title="Double-click to rename"
           >
-            🏢 {title}
+            <img src="/logo.png" alt="Tonkatsu" className="hud-logo" />{title}
           </h1>
         )}
         <span className={`hud-connection ${connected ? 'hud-connection--on' : 'hud-connection--off'}`}>

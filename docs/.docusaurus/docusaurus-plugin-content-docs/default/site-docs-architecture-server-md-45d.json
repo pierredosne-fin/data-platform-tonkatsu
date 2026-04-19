@@ -1,0 +1,28 @@
+{
+  "id": "architecture/server",
+  "title": "Server",
+  "description": "The server is an Express + Socket.IO application written in TypeScript (ESM), running under tsx watch for hot-reload in development.",
+  "source": "@site/docs/architecture/server.md",
+  "sourceDirName": "architecture",
+  "slug": "/architecture/server",
+  "permalink": "/docs/architecture/server",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "id": "server",
+    "title": "Server",
+    "sidebar_position": 2
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Overview",
+    "permalink": "/docs/architecture/overview"
+  },
+  "next": {
+    "title": "Client",
+    "permalink": "/docs/architecture/client"
+  }
+}
