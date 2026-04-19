@@ -37,6 +37,7 @@ RUN npm ci --workspace=server --omit=dev && npm cache clean --force
 COPY --from=builder /app/server/dist ./server/dist
 COPY --from=builder /app/client/dist ./client/dist
 
-EXPOSE 3001
+EXPOSE 5173
+ENV PORT=5173
 
 CMD ["node", "server/dist/index.js"]
