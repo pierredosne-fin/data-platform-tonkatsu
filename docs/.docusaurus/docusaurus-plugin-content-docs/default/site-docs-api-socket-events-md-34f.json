@@ -1,7 +1,7 @@
 {
   "id": "api/socket-events",
   "title": "Socket.IO Events",
-  "description": "The server uses Socket.IO for all real-time communication. Connect to http3001.",
+  "description": "Tonkatsu uses Socket.IO for all real-time communication. Connect to http3001.",
   "source": "@site/docs/api/socket-events.md",
   "sourceDirName": "api",
   "slug": "/api/socket-events",

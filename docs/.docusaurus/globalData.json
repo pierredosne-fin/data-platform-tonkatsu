@@ -41,6 +41,11 @@
               "sidebar": "docs"
             },
             {
+              "id": "deployment",
+              "path": "/docs/deployment",
+              "sidebar": "docs"
+            },
+            {
               "id": "examples/first-agent",
               "path": "/docs/examples/first-agent",
               "sidebar": "docs"
@@ -68,6 +73,16 @@
             {
               "id": "intro",
               "path": "/docs/intro",
+              "sidebar": "docs"
+            },
+            {
+              "id": "security",
+              "path": "/docs/security",
+              "sidebar": "docs"
+            },
+            {
+              "id": "troubleshooting",
+              "path": "/docs/troubleshooting",
               "sidebar": "docs"
             }
           ],

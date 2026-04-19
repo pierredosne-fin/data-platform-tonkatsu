@@ -1,7 +1,7 @@
 {
   "id": "examples/scheduled-tasks",
   "title": "Scheduled Tasks",
-  "description": "Agents can run tasks on a cron schedule — useful for daily reports, monitoring jobs, or periodic data syncs.",
+  "description": "Agents can run tasks on a cron schedule — useful for daily standups, monitoring alerts, periodic data syncs, or any recurring automation.",
   "source": "@site/docs/examples/scheduled-tasks.md",
   "sourceDirName": "examples",
   "slug": "/examples/scheduled-tasks",
@@ -20,5 +20,9 @@
   "previous": {
     "title": "Repo-Backed Agent",
     "permalink": "/docs/examples/repo-backed-agent"
+  },
+  "next": {
+    "title": "Troubleshooting",
+    "permalink": "/docs/troubleshooting"
   }
 }

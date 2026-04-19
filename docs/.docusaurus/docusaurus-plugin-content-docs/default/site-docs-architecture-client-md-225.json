@@ -1,7 +1,7 @@
 {
   "id": "architecture/client",
   "title": "Client",
-  "description": "The client is a React 19 + TypeScript application bundled with Vite.",
+  "description": "The client is a React 19 + TypeScript application bundled with Vite. All source files are in client/src/.",
   "source": "@site/docs/architecture/client.md",
   "sourceDirName": "architecture",
   "slug": "/architecture/client",

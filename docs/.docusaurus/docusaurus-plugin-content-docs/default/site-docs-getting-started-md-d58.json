@@ -1,7 +1,7 @@
 {
   "id": "getting-started",
   "title": "Getting Started",
-  "description": "Prerequisites",
+  "description": "This guide walks you through installing Tonkatsu, creating your first AI assistant, and understanding how your data is stored.",
   "source": "@site/docs/getting-started.md",
   "sourceDirName": ".",
   "slug": "/getting-started",

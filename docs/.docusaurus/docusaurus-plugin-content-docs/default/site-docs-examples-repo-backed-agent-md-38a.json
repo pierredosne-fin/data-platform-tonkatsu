@@ -1,7 +1,7 @@
 {
   "id": "examples/repo-backed-agent",
   "title": "Repo-Backed Agent",
-  "description": "A repo-backed agent works directly inside a git repository. Its code changes are tracked in git, while its identity (SOUL.md, MEMORY.md, etc.) stays private.",
+  "description": "A repo-backed agent works directly inside a git repository. Its code changes are tracked in git on a dedicated branch, while its identity files (SOUL.md, MEMORY.md, etc.) stay private and are never committed.",
   "source": "@site/docs/examples/repo-backed-agent.md",
   "sourceDirName": "examples",
   "slug": "/examples/repo-backed-agent",

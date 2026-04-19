@@ -1,7 +1,7 @@
 {
   "id": "examples/first-agent",
   "title": "Your First Agent",
-  "description": "This walkthrough creates a simple assistant agent from scratch.",
+  "description": "This walkthrough creates a coding assistant from scratch and shows you exactly what happens when you send it a task.",
   "source": "@site/docs/examples/first-agent.md",
   "sourceDirName": "examples",
   "slug": "/examples/first-agent",

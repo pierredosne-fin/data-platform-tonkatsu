@@ -1,7 +1,7 @@
 {
   "id": "examples/multi-agent-team",
   "title": "Multi-Agent Team",
-  "description": "This example sets up a two-agent team where a project manager delegates research tasks to an analyst.",
+  "description": "This example sets up two assistants that work together: a coordinator that manages the work, and a writer that handles the actual writing. The coordinator delegates — the writer delivers.",
   "source": "@site/docs/examples/multi-agent-team.md",
   "sourceDirName": "examples",
   "slug": "/examples/multi-agent-team",

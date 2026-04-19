@@ -1,7 +1,7 @@
 {
   "id": "architecture/agent-workspace",
   "title": "Agent Workspace",
-  "description": "Each agent gets a dedicated directory under workspaces///.",
+  "description": "Each agent gets a dedicated directory under workspaces///. This directory is the agent's entire world — it's the working directory for Claude Code, the source of its identity, and the storage for its memory.",
   "source": "@site/docs/architecture/agent-workspace.md",
   "sourceDirName": "architecture",
   "slug": "/architecture/agent-workspace",

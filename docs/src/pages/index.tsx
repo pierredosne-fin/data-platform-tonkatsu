@@ -40,16 +40,12 @@ function Hero() {
               <span className={styles.dot} style={{background:'#ff5f57'}} />
               <span className={styles.dot} style={{background:'#febc2e'}} />
               <span className={styles.dot} style={{background:'#28c840'}} />
-              <span className={styles.screenshotUrl}>tonkatsu — office</span>
+              <span className={styles.screenshotUrl} />
             </div>
             <div className={styles.screenshotBody}>
-              <p className={styles.screenshotPlaceholder}>
-                Drop your app screenshot here
-              </p>
+              <img src="/img/tonkatsu_com.png" alt="Tonkatsu virtual office grid" className={styles.screenshotImg} />
             </div>
           </div>
-          {/* glow underneath */}
-          <div className={styles.screenshotGlow} />
         </div>
       </div>
     </section>
@@ -70,7 +66,7 @@ const FEATURES = [
   {
     icon: '🔀',
     title: 'Agent Delegation',
-    desc: 'Agents hand off work to each other using a simple tag: <CALL_AGENT name="analyst">…</CALL_AGENT>. Up to 5 levels deep, with full traceability in the UI.',
+    desc: 'Agents hand off work to each other by simply mentioning @agent_name. Up to 5 levels deep, with full traceability in the UI.',
   },
   {
     icon: '🌿',
@@ -153,9 +149,14 @@ function HowItWorks() {
             </div>
           </div>
           <div className={styles.showcaseScreenshot}>
-            <div className={styles.showcasePlaceholder}>
-              {`// Example: PM delegates to analyst\n\nconst pm = await createAgent({\n  name: 'pm',\n  mission: 'Break down goals,\\ndelegate to specialists.',\n});\n\n// PM's output triggers delegation:\n// <CALL_AGENT name="analyst">\n//   Research Q1 AI trends\n// </CALL_AGENT>\n\n// Server intercepts → runs analyst\n// → injects result back into pm\n// → pm synthesizes final answer`}
-            </div>
+            <video
+              src="/img/tonkatsu_animation.mov"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className={styles.showcaseImg}
+            />
           </div>
         </div>
       </div>
@@ -198,9 +199,7 @@ function Screenshot() {
             </div>
           </div>
           <div className={styles.showcaseScreenshot}>
-            <div className={styles.showcasePlaceholder}>
-              Drop a second screenshot here
-            </div>
+            <img src="/img/tonkatsu_home.png" alt="Tonkatsu agent chat in action" className={styles.showcaseImg} />
           </div>
         </div>
       </div>

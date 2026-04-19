@@ -217,10 +217,12 @@
 }
 
 .screenshotBody {
-  min-height: 420px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
+}
+
+.screenshotImg {
+  width: 100%;
+  display: block;
 }
 
 .screenshotPlaceholder {
@@ -398,6 +400,12 @@
 
 [data-theme='dark'] .showcasePlaceholder {
   border-color: rgba(167, 139, 250, 0.2);
+}
+
+.showcaseImg {
+  width: 100%;
+  display: block;
+  border-radius: 0.75rem;
 }
 
 /* ---- Bottom CTA ---- */

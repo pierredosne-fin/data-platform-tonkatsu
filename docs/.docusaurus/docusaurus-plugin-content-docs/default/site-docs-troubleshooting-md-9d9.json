@@ -1,0 +1,28 @@
+{
+  "id": "troubleshooting",
+  "title": "Troubleshooting",
+  "description": "Something not working? This page covers the most common issues and how to fix them.",
+  "source": "@site/docs/troubleshooting.md",
+  "sourceDirName": ".",
+  "slug": "/troubleshooting",
+  "permalink": "/docs/troubleshooting",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 6,
+  "frontMatter": {
+    "id": "troubleshooting",
+    "title": "Troubleshooting",
+    "sidebar_position": 6
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Scheduled Tasks",
+    "permalink": "/docs/examples/scheduled-tasks"
+  },
+  "next": {
+    "title": "Security",
+    "permalink": "/docs/security"
+  }
+}

@@ -1,7 +1,7 @@
 {
   "id": "architecture/server",
   "title": "Server",
-  "description": "The server is an Express + Socket.IO application written in TypeScript (ESM), running under tsx watch for hot-reload in development.",
+  "description": "The server is an Express + Socket.IO application written in TypeScript (ESM), running under tsx watch for hot-reload in development. All source files are in server/src/.",
   "source": "@site/docs/architecture/server.md",
   "sourceDirName": "architecture",
   "slug": "/architecture/server",

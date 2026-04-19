@@ -1,0 +1,24 @@
+{
+  "id": "deployment",
+  "title": "Deployment",
+  "description": "Running Tonkatsu in production requires building both packages, configuring the server environment, and optionally setting up a reverse proxy and process manager.",
+  "source": "@site/docs/deployment.md",
+  "sourceDirName": ".",
+  "slug": "/deployment",
+  "permalink": "/docs/deployment",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 8,
+  "frontMatter": {
+    "id": "deployment",
+    "title": "Deployment",
+    "sidebar_position": 8
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Security",
+    "permalink": "/docs/security"
+  }
+}

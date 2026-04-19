@@ -39,15 +39,15 @@ export default [
   },
   {
     path: '/docs',
-    component: ComponentCreator('/docs', '7df'),
+    component: ComponentCreator('/docs', '3d6'),
     routes: [
       {
         path: '/docs',
-        component: ComponentCreator('/docs', '9e2'),
+        component: ComponentCreator('/docs', '40d'),
         routes: [
           {
             path: '/docs',
-            component: ComponentCreator('/docs', 'd87'),
+            component: ComponentCreator('/docs', 'a6d'),
             routes: [
               {
                 path: '/docs/api/rest-api',
@@ -86,6 +86,12 @@ export default [
                 sidebar: "docs"
               },
               {
+                path: '/docs/deployment',
+                component: ComponentCreator('/docs/deployment', '3c3'),
+                exact: true,
+                sidebar: "docs"
+              },
+              {
                 path: '/docs/examples/first-agent',
                 component: ComponentCreator('/docs/examples/first-agent', '5a2'),
                 exact: true,
@@ -118,6 +124,18 @@ export default [
               {
                 path: '/docs/intro',
                 component: ComponentCreator('/docs/intro', 'a6e'),
+                exact: true,
+                sidebar: "docs"
+              },
+              {
+                path: '/docs/security',
+                component: ComponentCreator('/docs/security', 'e6a'),
+                exact: true,
+                sidebar: "docs"
+              },
+              {
+                path: '/docs/troubleshooting',
+                component: ComponentCreator('/docs/troubleshooting', 'e35'),
                 exact: true,
                 sidebar: "docs"
               }

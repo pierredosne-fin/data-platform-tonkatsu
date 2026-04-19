@@ -1,7 +1,7 @@
 {
   "id": "architecture/overview",
   "title": "Overview",
-  "description": "Tonkatsu is a monorepo with two npm workspaces:",
+  "description": "This page explains the big picture — how the pieces fit together, what happens when you send a message, and why things are built the way they are. No technical background required for the first half.",
   "source": "@site/docs/architecture/overview.md",
   "sourceDirName": "architecture",
   "slug": "/architecture/overview",
