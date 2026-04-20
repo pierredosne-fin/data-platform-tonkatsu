@@ -1,8 +1,26 @@
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+import { rmSync } from 'fs';
 import request from 'supertest';
 import type { Application } from 'express';
 import type { Server as HttpServer } from 'http';
 import type { Server as IOServer } from 'socket.io';
+
+// ── Hoisted helpers (run before any module is loaded) ─────────────────────────
+// Use vi.hoisted so the temp workspace path is available inside vi.mock factories.
+// Use require() instead of ESM imports because vi.hoisted runs before imports resolve.
+const { testWorkspacesDir } = vi.hoisted(() => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { mkdirSync: mkdir } = require('node:fs') as typeof import('fs');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { join: j } = require('node:path') as typeof import('path');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { tmpdir: td } = require('node:os') as typeof import('os');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { randomBytes: rb } = require('node:crypto') as typeof import('crypto');
+  const dir = j(td(), `tonkatsu-integration-${rb(6).toString('hex')}`);
+  mkdir(dir, { recursive: true });
+  return { testWorkspacesDir: dir };
+});
 
 // Mock external services before any imports so no real API keys or git ops are needed.
 // vi.mock() is hoisted by Vitest so these always run first.
@@ -44,6 +62,22 @@ vi.mock('@anthropic-ai/claude-agent-sdk', () => ({
   listSessions: vi.fn().mockResolvedValue([]),
 }));
 
+// Override WORKSPACES_DIR so agent workspaces are created inside a temp
+// directory (not through the `workspaces` symlink which does not exist in CI).
+vi.mock('../services/persistenceService.js', async (importOriginal) => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { join: j } = require('node:path') as typeof import('path');
+  const real = await importOriginal<typeof import('../services/persistenceService.js')>();
+  return {
+    ...real,
+    WORKSPACES_DIR: testWorkspacesDir,
+    REPOS_DIR: j(testWorkspacesDir, '.repos'),
+    saveAgents: vi.fn(),          // skip disk persistence in tests
+    loadAllAgents: vi.fn().mockReturnValue([]),
+    getTeamIds: vi.fn().mockReturnValue(['default']),
+  };
+});
+
 // Dynamic imports after mocks are registered
 const { createApp } = await import('../app.js');
 const agentModule = await import('../services/agentService.js');
@@ -72,6 +106,9 @@ describe('Agent API — integration', () => {
         httpServer.close(() => resolve());
       });
     });
+
+    // Remove temp workspace directory
+    rmSync(testWorkspacesDir, { recursive: true, force: true });
   });
 
   // Helper to create an agent and track its ID for cleanup
