@@ -13,7 +13,7 @@ import { createSkillsRouter } from './routes/skills.js';
 import { createSshKeysRouter } from './routes/sshKeys.js';
 import { createWorkspaceSyncRouter } from './routes/workspaceSync.js';
 import { registerHandlers } from './socket/handlers.js';
-import { loadAllAgents } from './services/persistenceService.js';
+import { loadAllAgents, setupSshIdentity } from './services/persistenceService.js';
 import { restoreAgent } from './services/agentService.js';
 import { loadAllTemplates, syncTemplateFolders } from './services/templateService.js';
 import { loadAllSkills } from './services/skillService.js';
@@ -77,6 +77,7 @@ if (isProd) {
 
 // ── Load data before accepting connections ───────────────────────────────────
 
+try { setupSshIdentity(); } catch (err) { console.error('[startup] setupSshIdentity failed:', err); }
 try { loadAllTemplates(); } catch (err) { console.error('[startup] loadAllTemplates failed:', err); }
 try { syncTemplateFolders(); } catch (err) { console.error('[startup] syncTemplateFolders failed:', err); }
 try { loadAllSkills(); } catch (err) { console.error('[startup] loadAllSkills failed:', err); }

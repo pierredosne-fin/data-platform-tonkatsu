@@ -42,7 +42,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
          > /etc/apt/sources.list.d/google-cloud-sdk.list \
     && apt-get update && apt-get install -y --no-install-recommends \
          gh google-cloud-cli \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /root/.ssh \
+    && ssh-keyscan github.com >> /root/.ssh/known_hosts 2>/dev/null \
+    && chmod 700 /root/.ssh
 
 # Only install server production deps
 COPY package.json package-lock.json ./
