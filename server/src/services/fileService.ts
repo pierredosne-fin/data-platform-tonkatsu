@@ -234,6 +234,20 @@ export function snapshotWorkspace(agentPath: string, templatePath: string): void
   }
 }
 
+/** Initialize SOUL.md, OPS.md, TOOLS.md for a template workspace (only if absent). */
+export function setupTemplateFiles(workspacePath: string, name: string, mission: string): void {
+  mkdirSync(workspacePath, { recursive: true });
+  const files: Record<string, string> = {
+    'SOUL.md':  `# Soul\n\n**Name:** ${name}\n**Mission:** ${mission}\n\nCore principles and identity of this agent.\n`,
+    'OPS.md':   `# Operational Playbook\n\nRecurring tasks, conventions, constraints.\n`,
+    'TOOLS.md': `# Tools & Environment\n\nAvailable tools, API endpoints, credentials location.\n`,
+  };
+  for (const [filename, content] of Object.entries(files)) {
+    const p = join(workspacePath, filename);
+    if (!existsSync(p)) writeFileSync(p, content, 'utf-8');
+  }
+}
+
 export function setupWorkspaceStructure(workspacePath: string, agentName: string, mission: string): void {
   const today = new Date().toISOString().slice(0, 10);
 
