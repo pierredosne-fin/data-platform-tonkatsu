@@ -51,6 +51,9 @@ export function CreateAgentTemplateModal({ onClose, onCreated, editTemplate }: P
   const [soulMd, setSoulMd] = useState('');
   const [opsMd, setOpsMd] = useState('');
   const [toolsMd, setToolsMd] = useState('');
+  const [generatingSoul, setGeneratingSoul] = useState(false);
+  const [generatingOps, setGeneratingOps] = useState(false);
+  const [generatingTools, setGeneratingTools] = useState(false);
   const [settingsJson, setSettingsJson] = useState('');
   const [editingFile, setEditingFile] = useState<{ type: 'command' | 'rule' | 'skill'; name: string; content: string } | null>(null);
   const [newFileName, setNewFileName] = useState('');
@@ -130,6 +133,17 @@ export function CreateAgentTemplateModal({ onClose, onCreated, editTemplate }: P
     const res = await fetch(`${baseUrl}/files/claude-md`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: claudeMd }) });
     setSavingFile(false);
     if (!res.ok) setFileError('Failed to save CLAUDE.md');
+  };
+
+  const generateWorkspaceFile = async (file: 'soul' | 'ops' | 'tools', current: string, set: (v: string) => void, setGenerating: (v: boolean) => void) => {
+    if (!isEdit) return;
+    setGenerating(true); setFileError('');
+    const res = await fetch(`/api/templates/agents/${editTemplate!.id}/generate-workspace-file`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ file, current }),
+    });
+    setGenerating(false);
+    if (res.ok) { const { content } = await res.json(); set(content); }
+    else setFileError('Generation failed');
   };
 
   const saveSoulMd = async () => {
@@ -353,7 +367,9 @@ export function CreateAgentTemplateModal({ onClose, onCreated, editTemplate }: P
               <>
                 <div className="file-editor-header">
                   <span className="file-editor-title">SOUL.md</span>
-                  <span className="form-hint">Identity, principles, and core values</span>
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => generateWorkspaceFile('soul', soulMd, setSoulMd, setGeneratingSoul)} disabled={generatingSoul}>
+                    {generatingSoul ? 'Generating…' : soulMd.trim() ? '✦ Improve' : '✦ Generate'}
+                  </button>
                 </div>
                 <textarea className="file-editor" value={soulMd} onChange={(e) => setSoulMd(e.target.value)} placeholder="# Soul&#10;&#10;Core identity and principles…" spellCheck={false} />
                 {fileError && <div className="file-error">{fileError}</div>}
@@ -372,7 +388,9 @@ export function CreateAgentTemplateModal({ onClose, onCreated, editTemplate }: P
               <>
                 <div className="file-editor-header">
                   <span className="file-editor-title">OPS.md</span>
-                  <span className="form-hint">Operational playbook, recurring tasks, constraints</span>
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => generateWorkspaceFile('ops', opsMd, setOpsMd, setGeneratingOps)} disabled={generatingOps}>
+                    {generatingOps ? 'Generating…' : opsMd.trim() ? '✦ Improve' : '✦ Generate'}
+                  </button>
                 </div>
                 <textarea className="file-editor" value={opsMd} onChange={(e) => setOpsMd(e.target.value)} placeholder="# Operational Playbook&#10;&#10;Recurring tasks and conventions…" spellCheck={false} />
                 {fileError && <div className="file-error">{fileError}</div>}
@@ -391,7 +409,9 @@ export function CreateAgentTemplateModal({ onClose, onCreated, editTemplate }: P
               <>
                 <div className="file-editor-header">
                   <span className="file-editor-title">TOOLS.md</span>
-                  <span className="form-hint">Available tools, API endpoints, environment</span>
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => generateWorkspaceFile('tools', toolsMd, setToolsMd, setGeneratingTools)} disabled={generatingTools}>
+                    {generatingTools ? 'Generating…' : toolsMd.trim() ? '✦ Improve' : '✦ Generate'}
+                  </button>
                 </div>
                 <textarea className="file-editor" value={toolsMd} onChange={(e) => setToolsMd(e.target.value)} placeholder="# Tools &amp; Environment&#10;&#10;Available tools and endpoints…" spellCheck={false} />
                 {fileError && <div className="file-error">{fileError}</div>}
