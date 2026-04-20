@@ -44,6 +44,9 @@ function listSkills(dir: string): { name: string; content: string }[] {
 
 export interface WorkspaceFiles {
   claudeMd: string | null;
+  soul: string | null;
+  ops: string | null;
+  tools: string | null;
   settings: string | null;
   commands: { name: string; content: string }[];
   rules: { name: string; content: string }[];
@@ -53,6 +56,9 @@ export interface WorkspaceFiles {
 export function readWorkspaceFiles(workspacePath: string): WorkspaceFiles {
   return {
     claudeMd: safeRead(join(workspacePath, 'CLAUDE.md')),
+    soul: safeRead(join(workspacePath, 'SOUL.md')),
+    ops: safeRead(join(workspacePath, 'OPS.md')),
+    tools: safeRead(join(workspacePath, 'TOOLS.md')),
     settings: safeRead(join(workspacePath, '.claude', 'settings.json')),
     commands: listMdFiles(join(workspacePath, '.claude', 'commands')),
     rules: listMdFiles(join(workspacePath, '.claude', 'rules')),
@@ -62,6 +68,18 @@ export function readWorkspaceFiles(workspacePath: string): WorkspaceFiles {
 
 export function writeClaudeMd(workspacePath: string, content: string): void {
   safeWrite(join(workspacePath, 'CLAUDE.md'), content);
+}
+
+export function writeSoul(workspacePath: string, content: string): void {
+  safeWrite(join(workspacePath, 'SOUL.md'), content);
+}
+
+export function writeOps(workspacePath: string, content: string): void {
+  safeWrite(join(workspacePath, 'OPS.md'), content);
+}
+
+export function writeTools(workspacePath: string, content: string): void {
+  safeWrite(join(workspacePath, 'TOOLS.md'), content);
 }
 
 export function writeSettings(workspacePath: string, content: string): void {
@@ -186,13 +204,13 @@ function copyDir(srcDir: string, destDir: string): void {
   }
 }
 
-/** Copy template workspace files (CLAUDE.md + .claude/) to an agent workspace, replacing .claude/ entirely. */
+/** Copy template workspace files (CLAUDE.md + SOUL.md + OPS.md + TOOLS.md + .claude/) to an agent workspace, replacing .claude/ entirely. */
 export function copyWorkspaceFiles(srcPath: string, destPath: string): void {
   if (!existsSync(srcPath)) return;
-  const claudeMd = join(srcPath, 'CLAUDE.md');
-  if (existsSync(claudeMd)) {
-    mkdirSync(destPath, { recursive: true });
-    copyFileSync(claudeMd, join(destPath, 'CLAUDE.md'));
+  mkdirSync(destPath, { recursive: true });
+  for (const file of ['CLAUDE.md', 'SOUL.md', 'OPS.md', 'TOOLS.md']) {
+    const src = join(srcPath, file);
+    if (existsSync(src)) copyFileSync(src, join(destPath, file));
   }
   const claudeDir = join(srcPath, '.claude');
   if (existsSync(claudeDir)) {
@@ -205,10 +223,10 @@ export function copyWorkspaceFiles(srcPath: string, destPath: string): void {
 
 /** Copy an agent's workspace files into a template directory, overwriting everything. */
 export function snapshotWorkspace(agentPath: string, templatePath: string): void {
-  const claudeMd = join(agentPath, 'CLAUDE.md');
-  if (existsSync(claudeMd)) {
-    mkdirSync(templatePath, { recursive: true });
-    copyFileSync(claudeMd, join(templatePath, 'CLAUDE.md'));
+  mkdirSync(templatePath, { recursive: true });
+  for (const file of ['CLAUDE.md', 'SOUL.md', 'OPS.md', 'TOOLS.md']) {
+    const src = join(agentPath, file);
+    if (existsSync(src)) copyFileSync(src, join(templatePath, file));
   }
   const claudeDir = join(agentPath, '.claude');
   if (existsSync(claudeDir)) {
