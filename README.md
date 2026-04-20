@@ -9,7 +9,7 @@
   [![Node](https://img.shields.io/badge/node-%3E%3D20-green)](https://nodejs.org)
 
   <br/>
-  <video src="docs/static/img/introduction.mp4" controls width="100%"></video>
+  <video src="https://github.com/pierredosne-fin/tonkatsu-ai/releases/download/v1.1.2/introduction.mp4" controls width="100%"></video>
 </div>
 
 ---
