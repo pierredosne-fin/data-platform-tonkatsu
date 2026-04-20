@@ -80,6 +80,30 @@ export function createTemplatesRouter(io: Server) {
     catch { res.status(400).json({ error: 'Invalid JSON' }); }
   });
 
+  router.put('/agents/:id/files/soul-md', (req, res) => {
+    if (!templateService.getAgentTemplate(req.params.id)) { res.status(404).json({ error: 'Not found' }); return; }
+    const { content } = req.body;
+    if (typeof content !== 'string') { res.status(400).json({ error: 'content required' }); return; }
+    fileService.writeSoul(templateService.getAgentTemplateWorkspacePath(req.params.id), content);
+    res.json({ ok: true });
+  });
+
+  router.put('/agents/:id/files/ops-md', (req, res) => {
+    if (!templateService.getAgentTemplate(req.params.id)) { res.status(404).json({ error: 'Not found' }); return; }
+    const { content } = req.body;
+    if (typeof content !== 'string') { res.status(400).json({ error: 'content required' }); return; }
+    fileService.writeOps(templateService.getAgentTemplateWorkspacePath(req.params.id), content);
+    res.json({ ok: true });
+  });
+
+  router.put('/agents/:id/files/tools-md', (req, res) => {
+    if (!templateService.getAgentTemplate(req.params.id)) { res.status(404).json({ error: 'Not found' }); return; }
+    const { content } = req.body;
+    if (typeof content !== 'string') { res.status(400).json({ error: 'content required' }); return; }
+    fileService.writeTools(templateService.getAgentTemplateWorkspacePath(req.params.id), content);
+    res.json({ ok: true });
+  });
+
   router.put('/agents/:id/files/commands/:name(*)', (req, res) => {
     if (!templateService.getAgentTemplate(req.params.id)) { res.status(404).json({ error: 'Not found' }); return; }
     const { content } = req.body;

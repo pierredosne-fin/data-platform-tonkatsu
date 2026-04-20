@@ -22,6 +22,9 @@ interface EditAgent {
 
 interface WorkspaceFiles {
   claudeMd: string | null;
+  soul: string | null;
+  ops: string | null;
+  tools: string | null;
   settings: string | null;
   commands: { name: string; content: string }[];
   rules: { name: string; content: string }[];
@@ -37,7 +40,7 @@ interface Props {
   editAgent?: EditAgent;
 }
 
-type Tab = 'basic' | 'claude-md' | 'commands' | 'rules' | 'skills' | 'settings';
+type Tab = 'basic' | 'claude-md' | 'soul-md' | 'ops-md' | 'tools-md' | 'commands' | 'rules' | 'skills' | 'settings';
 
 export function CreateAgentModal({ onClose, onCreate, onEdit, initialName, teamId, editAgent }: Props) {
   const agentTemplates = useTemplateStore((s) => s.agentTemplates);
@@ -69,6 +72,9 @@ export function CreateAgentModal({ onClose, onCreate, onEdit, initialName, teamI
   // Per-file editing state
   const [claudeMd, setClaudeMd] = useState('');
   const [generatingClaudeMd, setGeneratingClaudeMd] = useState(false);
+  const [soulMd, setSoulMd] = useState('');
+  const [opsMd, setOpsMd] = useState('');
+  const [toolsMd, setToolsMd] = useState('');
   const [settingsJson, setSettingsJson] = useState('');
   const [editingFile, setEditingFile] = useState<{ type: 'command' | 'rule' | 'skill'; name: string; content: string } | null>(null);
   const [newFileName, setNewFileName] = useState('');
@@ -85,6 +91,9 @@ export function CreateAgentModal({ onClose, onCreate, onEdit, initialName, teamI
       .then((data: WorkspaceFiles) => {
         setFiles(data);
         setClaudeMd(data.claudeMd ?? '');
+        setSoulMd(data.soul ?? '');
+        setOpsMd(data.ops ?? '');
+        setToolsMd(data.tools ?? '');
         setSettingsJson(data.settings ?? '{\n  "mcpServers": {}\n}');
       })
       .finally(() => setFilesLoading(false));
@@ -161,6 +170,27 @@ export function CreateAgentModal({ onClose, onCreate, onEdit, initialName, teamI
     if (!res.ok) setFileError('Failed to save CLAUDE.md');
   };
 
+  const saveSoulMd = async () => {
+    setSavingFile(true); setFileError('');
+    const res = await fetch(`/api/agents/${editAgent!.id}/files/soul-md`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: soulMd }) });
+    setSavingFile(false);
+    if (!res.ok) setFileError('Failed to save SOUL.md');
+  };
+
+  const saveOpsMd = async () => {
+    setSavingFile(true); setFileError('');
+    const res = await fetch(`/api/agents/${editAgent!.id}/files/ops-md`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: opsMd }) });
+    setSavingFile(false);
+    if (!res.ok) setFileError('Failed to save OPS.md');
+  };
+
+  const saveToolsMd = async () => {
+    setSavingFile(true); setFileError('');
+    const res = await fetch(`/api/agents/${editAgent!.id}/files/tools-md`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: toolsMd }) });
+    setSavingFile(false);
+    if (!res.ok) setFileError('Failed to save TOOLS.md');
+  };
+
   const saveSettings = async () => {
     setSavingFile(true);
     setFileError('');
@@ -214,6 +244,9 @@ export function CreateAgentModal({ onClose, onCreate, onEdit, initialName, teamI
   const TABS: { id: Tab; label: string }[] = [
     { id: 'basic', label: 'Basic' },
     { id: 'claude-md', label: 'CLAUDE.md' },
+    { id: 'soul-md', label: 'SOUL.md' },
+    { id: 'ops-md', label: 'OPS.md' },
+    { id: 'tools-md', label: 'TOOLS.md' },
     { id: 'commands', label: 'Commands' },
     { id: 'rules', label: 'Rules' },
     { id: 'skills', label: 'Skills' },
@@ -389,6 +422,66 @@ export function CreateAgentModal({ onClose, onCreate, onEdit, initialName, teamI
                   <button type="button" className="btn btn-primary" onClick={saveClaudeMd} disabled={savingFile}>
                     {savingFile ? 'Saving…' : 'Save CLAUDE.md'}
                   </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ── SOUL.md Tab ── */}
+        {tab === 'soul-md' && (
+          <div className="modal-body modal-body--file">
+            {filesLoading ? <div className="file-loading">Loading…</div> : (
+              <>
+                <div className="file-editor-header">
+                  <span className="file-editor-title">SOUL.md</span>
+                  <span className="form-hint">Identity, principles, and core values</span>
+                </div>
+                <textarea className="file-editor" value={soulMd} onChange={(e) => setSoulMd(e.target.value)} placeholder="# Soul&#10;&#10;Core identity and principles…" spellCheck={false} />
+                {fileError && <div className="file-error">{fileError}</div>}
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-ghost" onClick={onClose}>Close</button>
+                  <button type="button" className="btn btn-primary" onClick={saveSoulMd} disabled={savingFile}>{savingFile ? 'Saving…' : 'Save SOUL.md'}</button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ── OPS.md Tab ── */}
+        {tab === 'ops-md' && (
+          <div className="modal-body modal-body--file">
+            {filesLoading ? <div className="file-loading">Loading…</div> : (
+              <>
+                <div className="file-editor-header">
+                  <span className="file-editor-title">OPS.md</span>
+                  <span className="form-hint">Operational playbook, recurring tasks, constraints</span>
+                </div>
+                <textarea className="file-editor" value={opsMd} onChange={(e) => setOpsMd(e.target.value)} placeholder="# Operational Playbook&#10;&#10;Recurring tasks and conventions…" spellCheck={false} />
+                {fileError && <div className="file-error">{fileError}</div>}
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-ghost" onClick={onClose}>Close</button>
+                  <button type="button" className="btn btn-primary" onClick={saveOpsMd} disabled={savingFile}>{savingFile ? 'Saving…' : 'Save OPS.md'}</button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ── TOOLS.md Tab ── */}
+        {tab === 'tools-md' && (
+          <div className="modal-body modal-body--file">
+            {filesLoading ? <div className="file-loading">Loading…</div> : (
+              <>
+                <div className="file-editor-header">
+                  <span className="file-editor-title">TOOLS.md</span>
+                  <span className="form-hint">Available tools, API endpoints, environment</span>
+                </div>
+                <textarea className="file-editor" value={toolsMd} onChange={(e) => setToolsMd(e.target.value)} placeholder="# Tools &amp; Environment&#10;&#10;Available tools and endpoints…" spellCheck={false} />
+                {fileError && <div className="file-error">{fileError}</div>}
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-ghost" onClick={onClose}>Close</button>
+                  <button type="button" className="btn btn-primary" onClick={saveToolsMd} disabled={savingFile}>{savingFile ? 'Saving…' : 'Save TOOLS.md'}</button>
                 </div>
               </>
             )}

@@ -179,6 +179,33 @@ export function createAgentRouter(io: Server) {
     }
   });
 
+  router.put('/:id/files/soul-md', (req, res) => {
+    const agent = agentService.getAgent(req.params.id);
+    if (!agent) { res.status(404).json({ error: 'Agent not found' }); return; }
+    const { content } = req.body;
+    if (typeof content !== 'string') { res.status(400).json({ error: 'content required' }); return; }
+    fileService.writeSoul(agent.workspacePath, content);
+    res.json({ ok: true });
+  });
+
+  router.put('/:id/files/ops-md', (req, res) => {
+    const agent = agentService.getAgent(req.params.id);
+    if (!agent) { res.status(404).json({ error: 'Agent not found' }); return; }
+    const { content } = req.body;
+    if (typeof content !== 'string') { res.status(400).json({ error: 'content required' }); return; }
+    fileService.writeOps(agent.workspacePath, content);
+    res.json({ ok: true });
+  });
+
+  router.put('/:id/files/tools-md', (req, res) => {
+    const agent = agentService.getAgent(req.params.id);
+    if (!agent) { res.status(404).json({ error: 'Agent not found' }); return; }
+    const { content } = req.body;
+    if (typeof content !== 'string') { res.status(400).json({ error: 'content required' }); return; }
+    fileService.writeTools(agent.workspacePath, content);
+    res.json({ ok: true });
+  });
+
   // ── Permissions ────────────────────────────────────────────────────────────
 
   router.get('/:id/permissions', (req, res) => {
