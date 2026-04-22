@@ -1,4 +1,4 @@
-export type AgentStatus = 'sleeping' | 'working' | 'pending' | 'delegating';
+export type AgentStatus = 'sleeping' | 'working' | 'pending' | 'delegating' | 'broadcasting';
 
 export interface GitSync {
   remoteUrl: string;
@@ -89,6 +89,18 @@ export interface CronSchedule {
   enabled: boolean;
   createdAt: string;
   lastFiredAt?: string;
+}
+
+export interface FanOutTask {
+  agent: string;
+  prompt: string;
+}
+
+export interface FanOutProposal {
+  id: string;
+  fromAgentId: string;
+  teamId: string;
+  tasks: FanOutTask[];
 }
 
 export interface AgentStatusUpdate {
