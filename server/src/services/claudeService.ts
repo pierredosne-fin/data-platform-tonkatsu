@@ -1,13 +1,20 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { randomUUID } from 'crypto';
 import type { Server } from 'socket.io';
 import { query } from '@anthropic-ai/claude-agent-sdk';
 import * as agentService from './agentService.js';
 import { notifyDesktop } from './notifyService.js';
+import type { FanOutProposal, FanOutTask } from '../models/types.js';
 
 const NEED_INPUT_RE = /<NEED_INPUT>([\s\S]*?)<\/NEED_INPUT>/;
 const CALL_AGENT_RE = /<CALL_AGENT name="([^"]+)">([\s\S]*?)<\/CALL_AGENT>/;
+const FAN_OUT_RE = /<FAN_OUT>([\s\S]*?)<\/FAN_OUT>/;
+const TASK_RE = /<TASK agent="([^"]+)">([\s\S]*?)<\/TASK>/g;
 const MAX_CALL_DEPTH = 5;
+const FAN_OUT_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+export const pendingFanOuts = new Map<string, FanOutProposal>();
 
 // Build the append portion of the system prompt (agent identity + delegation protocol).
 // CLAUDE.md, workspace rules, and skills are loaded natively by the SDK via settingSources.
@@ -22,7 +29,7 @@ function buildSystemPromptAppend(
     otherAgents.length > 0
       ? `\n\nAVAILABLE AGENTS YOU CAN DELEGATE TO:\n` +
         otherAgents.map((a) => `- ${a.name}: ${a.mission}`).join('\n') +
-        `\n\nTo delegate work to another agent, include in your text response:\n  <CALL_AGENT name="AgentName">Your specific request here</CALL_AGENT>\n(Only one delegation per response. Their answer will be provided to you.)\n\nWhen a user message contains @AgentName, they want you to delegate the relevant work to that agent using CALL_AGENT.`
+        `\n\nTo delegate work to another agent, include in your text response:\n  <CALL_AGENT name="AgentName">Your specific request here</CALL_AGENT>\n(Only one delegation per response. Their answer will be provided to you.)\n\nWhen a user message contains @AgentName, they want you to delegate the relevant work to that agent using CALL_AGENT.\n\nTo dispatch multiple tasks to multiple agents IN PARALLEL (fire-and-forget — you will NOT receive their responses), use:\n  <FAN_OUT>\n    <TASK agent="AgentName">Task description</TASK>\n    <TASK agent="AnotherAgent">Another task</TASK>\n  </FAN_OUT>\nIMPORTANT: FAN_OUT requires user confirmation before any tasks are dispatched. The user will see a confirmation dialog. Use this for parallel independent work where you do not need the results back.`
       : '';
 
   const createAgentInstructions = canCreateAgents
@@ -269,7 +276,14 @@ async function runSubAgent(
 
   const othersForTarget = agentService
     .getAllAgents()
-    .filter((a) => a.id !== target.id && a.id !== callerAgentId && a.teamId === target.teamId)
+    .filter((a) => {
+      if (a.id === target.id || a.id === callerAgentId || a.teamId !== target.teamId) return false;
+      if (target.role === 'leader') {
+        return a.role === 'leader' || a.officeId === target.officeId;
+      }
+      return a.officeId === target.officeId;
+    })
+    .filter((a, i, arr) => arr.findIndex((b) => b.id === a.id) === i)
     .map((a) => ({ name: a.name, mission: a.mission }));
 
   const appendPrompt = buildSystemPromptAppend(target.name, target.mission, target.teamId, othersForTarget, target.canCreateAgents ?? false);
@@ -339,7 +353,14 @@ export async function runAgentTask(
 
   const otherAgents = agentService
     .getAllAgents()
-    .filter((a) => a.id !== agentId && a.teamId === agent.teamId)
+    .filter((a) => {
+      if (a.id === agentId || a.teamId !== agent.teamId) return false;
+      if (agent.role === 'leader') {
+        return a.role === 'leader' || a.officeId === agent.officeId;
+      }
+      return a.officeId === agent.officeId;
+    })
+    .filter((a, i, arr) => arr.findIndex((b) => b.id === a.id) === i)
     .map((a) => ({ name: a.name, mission: a.mission }));
 
   const appendPrompt = buildSystemPromptAppend(agent.name, agent.mission, agent.teamId, otherAgents, agent.canCreateAgents ?? false);
@@ -365,8 +386,35 @@ export async function runAgentTask(
       return;
     }
 
-    if (finalText.trim()) {
-      io.emit('agent:message', { agentId, message: { role: 'assistant', content: finalText } });
+    const fanOutMatch = FAN_OUT_RE.exec(finalText);
+    const displayText = (fanOutMatch ? finalText.replace(FAN_OUT_RE, '') : finalText).trim();
+    if (displayText) {
+      io.emit('agent:message', { agentId, message: { role: 'assistant', content: displayText } });
+    }
+
+    if (fanOutMatch) {
+      const tasks: FanOutTask[] = [];
+      for (const m of fanOutMatch[1].matchAll(TASK_RE)) {
+        tasks.push({ agent: m[1], prompt: m[2].trim() });
+      }
+
+      const missing = tasks
+        .map((t) => t.agent)
+        .filter((name) => !agentService.findAgentByName(name, agent.teamId));
+
+      if (missing.length > 0) {
+        io.emit('agent:error', { agentId, error: `Fan-out failed: unknown agents: ${missing.join(', ')}` });
+      } else {
+        const proposal: FanOutProposal = { id: randomUUID(), fromAgentId: agentId, teamId: agent.teamId, tasks };
+        pendingFanOuts.set(proposal.id, proposal);
+        setTimeout(() => pendingFanOuts.delete(proposal.id), FAN_OUT_TTL_MS);
+        io.emit('agent:fanOutProposal', proposal);
+      }
+
+      agentService.setStatus(agentId, 'sleeping');
+      io.emit('agent:statusChanged', { agentId, status: 'sleeping' });
+      notifyDesktop(agent.name, 'sleeping');
+      return;
     }
 
     // Check delegation

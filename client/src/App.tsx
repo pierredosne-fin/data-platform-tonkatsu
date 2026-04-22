@@ -14,6 +14,7 @@ import { ChatModal } from './components/ChatModal';
 import { ToastStack } from './components/ToastStack';
 import { TemplatesPanel } from './components/TemplatesPanel';
 import { WorkspaceSyncModal } from './components/WorkspaceSyncModal';
+import { FanOutModal } from './components/FanOutModal';
 
 export default function App() {
   const { connected } = useSocket();
@@ -138,6 +139,7 @@ export default function App() {
       )}
 
       <ToastStack />
+      <FanOutModal />
       {showSync && <WorkspaceSyncModal onClose={() => setShowSync(false)} />}
       {showTemplates && <TemplatesPanel onClose={() => setShowTemplates(false)} />}
     </div>

@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync, chmodS
 import { join, dirname, basename, isAbsolute, relative } from 'path';
 import { homedir } from 'os';
 import { fileURLToPath } from 'url';
-import type { Agent, AgentTemplate, TeamTemplate, CronSchedule, SkillTemplate, GitSync } from '../models/types.js';
+import type { Agent, AgentTemplate, TeamTemplate, CronSchedule, SkillTemplate, GitSync, Office, OfficeGroup, OfficeLink } from '../models/types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // .sync-data/ lives at the project root — completely outside workspaces/ so git/rsync syncs never touch it
@@ -85,11 +85,24 @@ export interface PersistedAgent {
   sessionId?: string;
   canCreateAgents?: boolean;
   gitSync?: GitSync;
+  officeId: string;
+  role: 'leader' | 'member';
   lastActivity: string;
   createdAt: string;
 }
 
-export function saveAgents(agents: Agent[]): void {
+export interface PersistedTeamState {
+  agents: PersistedAgent[];
+  offices: Office[];
+  officeGroups: OfficeGroup[];
+  officeLinks: OfficeLink[];
+}
+
+function defaultOffice(teamId: string): Office {
+  return { id: 'default', teamId, name: 'Main Office', position: { x: 0, y: 0 } };
+}
+
+export function saveAgents(agents: Agent[], teamOffices?: Map<string, Office[]>, teamOfficeGroups?: Map<string, OfficeGroup[]>, teamOfficeLinks?: Map<string, OfficeLink[]>): void {
   const byTeam = new Map<string, Agent[]>();
   for (const a of agents) {
     const list = byTeam.get(a.teamId) ?? [];
@@ -99,7 +112,7 @@ export function saveAgents(agents: Agent[]): void {
   for (const [teamId, teamAgents] of byTeam) {
     const path = teamRuntimePath(teamId);
     mkdirSync(dirname(path), { recursive: true });
-    const data: PersistedAgent[] = teamAgents.map((a) => ({
+    const agentData: PersistedAgent[] = teamAgents.map((a) => ({
       id: a.id,
       name: a.name,
       mission: a.mission,
@@ -116,11 +129,17 @@ export function saveAgents(agents: Agent[]): void {
       sessionId: a.sessionId,
       canCreateAgents: a.canCreateAgents,
       gitSync: a.gitSync,
+      officeId: a.officeId,
+      role: a.role,
       lastActivity: a.lastActivity.toISOString(),
       createdAt: a.createdAt.toISOString(),
     }));
+    const offices = teamOffices?.get(teamId) ?? [defaultOffice(teamId)];
+    const officeGroups = teamOfficeGroups?.get(teamId) ?? [];
+    const officeLinks = teamOfficeLinks?.get(teamId) ?? [];
+    const state: PersistedTeamState = { agents: agentData, offices, officeGroups, officeLinks };
     try {
-      writeFileSync(path, JSON.stringify(data, null, 2), 'utf-8');
+      writeFileSync(path, JSON.stringify(state, null, 2), 'utf-8');
     } catch (err) {
       console.warn(`[persistence] Failed to save agents for team ${teamId}:`, err);
     }
@@ -132,7 +151,13 @@ export function saveAgents(agents: Agent[]): void {
       const path = teamRuntimePath(teamId);
       if (existsSync(path)) {
         try {
-          writeFileSync(path, JSON.stringify([], null, 2), 'utf-8');
+          const emptyState: PersistedTeamState = {
+            agents: [],
+            offices: [defaultOffice(teamId)],
+            officeGroups: [],
+            officeLinks: [],
+          };
+          writeFileSync(path, JSON.stringify(emptyState, null, 2), 'utf-8');
         } catch (err) {
           console.warn(`[persistence] Failed to clear agents for team ${teamId}:`, err);
         }
@@ -245,16 +270,10 @@ export function getSshKeyPath(name: string): string {
   return join(SSH_KEYS_DIR, name);
 }
 
-/**
- * Install the global SSH key as ~/.ssh/id_rsa and configure gh CLI to use
- * SSH as git protocol, so that both git and gh commands work without tokens.
- * No-op if the global key is not configured.
- */
 export function setupSshIdentity(): void {
   const keyPath = getSshKeyPath(GLOBAL_SSH_KEY_NAME);
   if (!existsSync(keyPath)) return;
   try {
-    // ~/.ssh/id_rsa
     const sshDir = join(homedir(), '.ssh');
     mkdirSync(sshDir, { recursive: true });
     try { chmodSync(sshDir, 0o700); } catch { /* ignore */ }
@@ -262,7 +281,6 @@ export function setupSshIdentity(): void {
     writeFileSync(idRsa, readFileSync(keyPath, 'utf-8'), 'utf-8');
     try { chmodSync(idRsa, 0o600); } catch { /* ignore */ }
 
-    // ~/.config/gh/hosts.yml — tell gh to use SSH so no token is needed
     const ghConfigDir = join(homedir(), '.config', 'gh');
     mkdirSync(ghConfigDir, { recursive: true });
     const hostsyml = join(ghConfigDir, 'hosts.yml');
@@ -276,15 +294,43 @@ export function setupSshIdentity(): void {
   }
 }
 
-export function loadAllAgents(): PersistedAgent[] {
-  const all: PersistedAgent[] = [];
+export interface LoadedTeamState {
+  agents: PersistedAgent[];
+  offices: Office[];
+  officeGroups: OfficeGroup[];
+  officeLinks: OfficeLink[];
+}
+
+export function loadAllAgents(): LoadedTeamState[] {
+  const result: LoadedTeamState[] = [];
   const teamIds = getTeamIds();
   for (const teamId of teamIds) {
     const path = teamRuntimePath(teamId);
     if (!existsSync(path)) continue;
     try {
-      const agents = JSON.parse(readFileSync(path, 'utf-8')) as PersistedAgent[];
-      for (const a of agents) {
+      const raw = JSON.parse(readFileSync(path, 'utf-8')) as PersistedTeamState | PersistedAgent[];
+
+      // Auto-migrate: legacy format was a plain array of agents
+      let agentData: PersistedAgent[];
+      let offices: Office[];
+      let officeGroups: OfficeGroup[];
+      let officeLinks: OfficeLink[];
+
+      if (Array.isArray(raw)) {
+        // Legacy format — migrate to new structure
+        agentData = raw;
+        offices = [defaultOffice(teamId)];
+        officeGroups = [];
+        officeLinks = [];
+      } else {
+        agentData = raw.agents ?? [];
+        offices = (raw.offices && raw.offices.length > 0) ? raw.offices : [defaultOffice(teamId)];
+        officeGroups = raw.officeGroups ?? [];
+        officeLinks = raw.officeLinks ?? [];
+      }
+
+      const resolvedAgents: PersistedAgent[] = [];
+      for (const a of agentData) {
         if (!a.teamId) a.teamId = DEFAULT_TEAM;
         // Resolve relative paths (e.g. from workspace-synced repos) to absolute
         if (a.workspacePath && !isAbsolute(a.workspacePath)) {
@@ -293,11 +339,16 @@ export function loadAllAgents(): PersistedAgent[] {
         if (a.worktreeOf && !isAbsolute(a.worktreeOf)) {
           a.worktreeOf = join(REPOS_DIR, a.worktreeOf);
         }
-        all.push(a);
+        // Auto-migrate missing officeId / role
+        if (!a.officeId) a.officeId = 'default';
+        if (!a.role) a.role = 'member';
+        resolvedAgents.push(a);
       }
+
+      result.push({ agents: resolvedAgents, offices, officeGroups, officeLinks });
     } catch (err) {
       console.warn(`[persistence] Failed to load agents for team ${teamId}:`, err);
     }
   }
-  return all;
+  return result;
 }
