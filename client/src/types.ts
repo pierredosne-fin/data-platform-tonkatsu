@@ -84,6 +84,7 @@ export interface CronSchedule {
   enabled: boolean;
   createdAt: string;
   lastFiredAt?: string;
+  expiresAt?: string;
 }
 
 export interface ConversationSession {
@@ -91,4 +92,16 @@ export interface ConversationSession {
   summary: string;
   lastModified: number;
   firstPrompt?: string;
+}
+
+export interface FanOutTask {
+  agent: string;
+  prompt: string;
+}
+
+export interface FanOutProposal {
+  id: string;
+  fromAgentId: string;
+  teamId: string;
+  tasks: FanOutTask[];
 }

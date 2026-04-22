@@ -89,6 +89,19 @@ export interface CronSchedule {
   enabled: boolean;
   createdAt: string;
   lastFiredAt?: string;
+  expiresAt?: string; // ISO string — schedule auto-deletes when this passes
+}
+
+export interface FanOutTask {
+  agent: string;
+  prompt: string;
+}
+
+export interface FanOutProposal {
+  id: string;
+  fromAgentId: string;
+  teamId: string;
+  tasks: FanOutTask[];
 }
 
 export interface AgentStatusUpdate {

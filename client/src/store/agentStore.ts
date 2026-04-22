@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Agent, AgentStatus, ConversationSession, Message, Team } from '../types';
+import type { Agent, AgentStatus, ConversationSession, FanOutProposal, Message, Team } from '../types';
 
 export interface ToolEvent {
   type: 'call' | 'result';
@@ -32,6 +32,7 @@ interface AgentStore {
   toolCallCounters: Map<string, number>;
   agentHistories: Map<string, Message[]>;
   agentSessions: Map<string, ConversationSession[]>;
+  pendingFanOut: FanOutProposal | null;
 
   setAgents: (agents: Agent[]) => void;
   addAgent: (agent: Agent) => void;
@@ -55,6 +56,7 @@ interface AgentStore {
   appendAgentMessage: (agentId: string, message: Message) => void;
   clearDelegationEvents: (agentId: string) => void;
   setAgentSessions: (agentId: string, sessions: ConversationSession[]) => void;
+  setPendingFanOut: (proposal: FanOutProposal | null) => void;
 }
 
 export const useAgentStore = create<AgentStore>((set) => ({
@@ -69,6 +71,7 @@ export const useAgentStore = create<AgentStore>((set) => ({
   toolCallCounters: new Map(),
   agentHistories: new Map(),
   agentSessions: new Map(),
+  pendingFanOut: null,
 
   setAgents: (agents) => set((s) => ({
     agents: [...agents].sort((a, b) => a.roomId.localeCompare(b.roomId)),
@@ -211,4 +214,6 @@ export const useAgentStore = create<AgentStore>((set) => ({
       next.set(agentId, sessions);
       return { agentSessions: next };
     }),
+
+  setPendingFanOut: (proposal) => set({ pendingFanOut: proposal }),
 }));
