@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { randomUUID } from 'crypto';
 import type { Server } from 'socket.io';
 import { pendingFanOuts, runAgentTask } from '../services/claudeService.js';
 import * as agentService from '../services/agentService.js';
@@ -18,12 +17,8 @@ export function createFanOutRouter(io: Server): Router {
 
     pendingFanOuts.delete(proposal.id);
 
-    const fanoutId = randomUUID();
-
     interface ResolvedTask {
-      taskId: string;
       targetAgentId: string;
-      taskSnippet: string;
       prompt: string;
     }
 
@@ -33,12 +28,7 @@ export function createFanOutRouter(io: Server): Router {
         console.warn(`[fan-out] agent "${task.agent}" not found at dispatch time — skipping`);
         return [];
       }
-      return [{
-        taskId: randomUUID(),
-        targetAgentId: target.id,
-        taskSnippet: task.prompt.slice(0, 120),
-        prompt: task.prompt,
-      }];
+      return [{ targetAgentId: target.id, prompt: task.prompt }];
     });
 
     if (resolvedTasks.length === 0) {
@@ -46,54 +36,26 @@ export function createFanOutRouter(io: Server): Router {
       return;
     }
 
-    // Emit fanout:dispatched immediately so the client can render the progress panel
-    io.emit('fanout:dispatched', {
-      fanoutId,
-      sourceAgentId: proposal.fromAgentId,
-      tasks: resolvedTasks.map(({ taskId, targetAgentId, taskSnippet }) => ({
-        taskId,
-        targetAgentId,
-        taskSnippet,
-      })),
-    });
-
-    // Source agent enters broadcasting status while tasks run
-    agentService.setStatus(proposal.fromAgentId, 'broadcasting');
-    io.emit('agent:statusChanged', { agentId: proposal.fromAgentId, status: 'broadcasting' });
-
     const dispatchAll = async () => {
-      const results: Array<{ taskId: string; status: 'done' | 'failed' }> = [];
-
       for (let i = 0; i < resolvedTasks.length; i += CONCURRENCY_LIMIT) {
         const batch = resolvedTasks.slice(i, i + CONCURRENCY_LIMIT);
         await Promise.all(
-          batch.map(async ({ taskId, targetAgentId, prompt }) => {
-            io.emit('fanout:taskStarted', { fanoutId, taskId, targetAgentId });
+          batch.map(async ({ targetAgentId, prompt }) => {
             try {
               await runAgentTask(targetAgentId, io, prompt);
-              io.emit('fanout:taskComplete', { fanoutId, taskId, targetAgentId, status: 'done' });
-              results.push({ taskId, status: 'done' });
             } catch (err) {
-              console.error(`[fan-out] task ${taskId} failed:`, err);
-              io.emit('fanout:taskComplete', { fanoutId, taskId, targetAgentId, status: 'failed' });
-              results.push({ taskId, status: 'failed' });
+              console.error(`[fan-out] task failed:`, err);
             }
           })
         );
       }
-
-      agentService.setStatus(proposal.fromAgentId, 'sleeping');
-      io.emit('agent:statusChanged', { agentId: proposal.fromAgentId, status: 'sleeping' });
-      io.emit('fanout:complete', { fanoutId, sourceAgentId: proposal.fromAgentId, results });
     };
 
     dispatchAll().catch((err) => {
       console.error('[fan-out] dispatchAll error:', err);
-      agentService.setStatus(proposal.fromAgentId, 'sleeping');
-      io.emit('agent:statusChanged', { agentId: proposal.fromAgentId, status: 'sleeping' });
     });
 
-    res.json({ dispatched: resolvedTasks.length, fanoutId });
+    res.json({ dispatched: resolvedTasks.length });
   });
 
   router.post('/:proposalId/reject', (req, res) => {

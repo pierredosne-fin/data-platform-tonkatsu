@@ -13,8 +13,6 @@ interface Props {
   onRenameAgent?: (agentId: string, name: string) => void;
   onEditAgent?: (agentId: string) => void;
   onDeleteAgent?: (agentId: string) => void;
-  /** True only for the agent that initiated the fan-out (dispatching agent). */
-  isFanOutSource?: boolean;
 }
 
 export function Room({
@@ -28,7 +26,6 @@ export function Room({
   onRenameAgent,
   onEditAgent,
   onDeleteAgent,
-  isFanOutSource,
 }: Props) {
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState('');
@@ -145,9 +142,6 @@ export function Room({
       )}
       {agent?.status === 'delegating' && (
         <div className="room-delegating-badge">Waiting for agent</div>
-      )}
-      {agent?.status === 'broadcasting' && isFanOutSource && (
-        <div className="room-broadcasting-badge">📡</div>
       )}
     </div>
   );
