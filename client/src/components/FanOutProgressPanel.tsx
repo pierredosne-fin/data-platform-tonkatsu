@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type RefObject } from 'react';
 import { useAgentStore } from '../store/agentStore';
 import type { FanOutState, FanOutTaskStatus } from '../types';
 
@@ -108,7 +108,7 @@ export function FanOutProgressPanel({ fanOut, onAgentClick }: Props) {
 
 /** Renders all active fan-out panels, positioned below their source agent's room. */
 interface PanelsProps {
-  gridRef: React.RefObject<HTMLDivElement | null>;
+  gridRef: RefObject<HTMLDivElement | null>;
   onAgentClick: (agentId: string) => void;
 }
 

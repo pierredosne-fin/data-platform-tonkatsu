@@ -459,6 +459,7 @@ export function OfficeMap({ onAgentClick, onEmptyRoomClick, onEditAgent, onDelet
           {/* Fan-out progress panels anchored below dispatching rooms */}
           <FanOutPanels gridRef={gridRef} onAgentClick={onAgentClick} />
         </div>
+      </div>
 
       {/* Floating drag ghost (viewport-fixed, unaffected by board transform) */}
       {drag && (
