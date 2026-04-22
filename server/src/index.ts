@@ -1,11 +1,11 @@
+import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import express from 'express';
 import { PORT } from './config.js';
 import { createApp } from './app.js';
 import { registerHandlers } from './socket/handlers.js';
 import { loadAllAgents, setupSshIdentity } from './services/persistenceService.js';
-import { restoreAgent } from './services/agentService.js';
+import { restoreAgent, restoreTeamOfficeState } from './services/agentService.js';
 import { loadAllTemplates, syncTemplateFolders } from './services/templateService.js';
 import { loadAllSkills } from './services/skillService.js';
 import { initSchedules } from './services/cronService.js';
@@ -36,10 +36,13 @@ try { syncTemplateFolders(); } catch (err) { console.error('[startup] syncTempla
 try { loadAllSkills(); } catch (err) { console.error('[startup] loadAllSkills failed:', err); }
 
 try {
-  const saved = loadAllAgents();
+  const states = loadAllAgents();
   let restored = 0;
-  for (const persisted of saved) {
-    if (restoreAgent(persisted)) restored++;
+  for (const state of states) {
+    restoreTeamOfficeState(state);
+    for (const persisted of state.agents) {
+      if (restoreAgent(persisted)) restored++;
+    }
   }
   console.log(`[startup] ${restored} agents restored`);
 } catch (err) {
