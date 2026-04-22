@@ -1,4 +1,4 @@
-export type AgentStatus = 'sleeping' | 'working' | 'pending' | 'delegating' | 'broadcasting';
+export type AgentStatus = 'sleeping' | 'working' | 'pending' | 'delegating';
 
 export interface GitSync {
   remoteUrl: string;

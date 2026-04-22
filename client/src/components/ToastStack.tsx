@@ -2,11 +2,10 @@ import { useToastStore, type Toast } from '../store/toastStore';
 import type { AgentStatus } from '../types';
 
 const STATUS_META: Record<AgentStatus, { label: string; icon: string; cls: string }> = {
-  working:      { label: 'Working',            icon: '⚙️',  cls: 'toast--working'      },
-  pending:      { label: 'Needs input',        icon: '❗',  cls: 'toast--pending'      },
-  sleeping:     { label: 'Done',              icon: '💤',  cls: 'toast--sleeping'     },
-  delegating:   { label: 'Waiting for agent', icon: '📨',  cls: 'toast--delegating'   },
-  broadcasting: { label: 'Broadcasting',      icon: '📡',  cls: 'toast--broadcasting' },
+  working:    { label: 'Working',            icon: '⚙️', cls: 'toast--working'    },
+  pending:    { label: 'Needs input',        icon: '❗', cls: 'toast--pending'    },
+  sleeping:   { label: 'Done',              icon: '💤', cls: 'toast--sleeping'   },
+  delegating: { label: 'Waiting for agent', icon: '📨', cls: 'toast--delegating' },
 };
 
 function ToastItem({ toast }: { toast: Toast }) {

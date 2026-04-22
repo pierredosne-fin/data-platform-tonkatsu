@@ -4,11 +4,10 @@ import { useSocketStore } from '../store/socketStore';
 import type { Agent, CronSchedule } from '../types';
 
 const STATUS_LABEL: Record<Agent['status'], string> = {
-  sleeping:     'Sleeping',
-  working:      'Working',
-  pending:      'Needs input',
-  delegating:   'Waiting for agent',
-  broadcasting: 'Broadcasting fan-out',
+  sleeping:   'Sleeping',
+  working:    'Working',
+  pending:    'Needs input',
+  delegating: 'Waiting for agent',
 };
 
 interface Props {
