@@ -86,6 +86,7 @@ export interface CronSchedule {
   enabled: boolean;
   createdAt: string;
   lastFiredAt?: string;
+  expiresAt?: string;
 }
 
 export interface ConversationSession {
