@@ -2,7 +2,6 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useAgentStore } from '../store/agentStore';
 import { useSocketStore } from '../store/socketStore';
 import { Room } from './Room';
-import { FanOutPanels } from './FanOutProgressPanel';
 import type { Agent, Room as RoomType } from '../types';
 
 const GRID_COLS = 5;
@@ -112,6 +111,15 @@ export function OfficeMap({ onAgentClick, onEmptyRoomClick, onEditAgent, onDelet
 
   const agentByRoom = useMemo(() => new Map(teamAgents.map((a) => [a.roomId, a])), [teamAgents]);
   agentByRoomRef.current = agentByRoom;
+
+  /** Set of agent IDs that are currently the dispatching source of a fan-out. */
+  const fanOutSourceIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const fanOut of activeFanOuts.values()) {
+      if (!fanOut.settled) ids.add(fanOut.sourceAgentId);
+    }
+    return ids;
+  }, [activeFanOuts]);
 
   // ── Delegation lines ──────────────────────────────────────────────────────
 
@@ -384,21 +392,25 @@ export function OfficeMap({ onAgentClick, onEmptyRoomClick, onEditAgent, onDelet
         style={{ transform: `translate(${panX}px, ${panY}px) scale(${zoom})` }}
       >
         <div className="office-grid" ref={gridRef}>
-          {ROOMS.map((room) => (
-            <Room
-              key={room.id}
-              room={room}
-              agent={agentByRoom.get(room.id)}
-              onAgentClick={onAgentClick}
-              onEmptyRoomClick={!agentByRoom.get(room.id) && onEmptyRoomClick ? () => onEmptyRoomClick(room.id) : undefined}
-              isDragging={drag?.sourceRoomId === room.id}
-              isDropTarget={hoverRoomId === room.id && drag?.sourceRoomId !== room.id}
-              onMouseDown={(agent, e) => startDrag(agent, room.id, e)}
-              onRenameAgent={handleRenameAgent}
-              onEditAgent={onEditAgent}
-              onDeleteAgent={onDeleteAgent}
-            />
-          ))}
+          {ROOMS.map((room) => {
+            const agent = agentByRoom.get(room.id);
+            return (
+              <Room
+                key={room.id}
+                room={room}
+                agent={agent}
+                onAgentClick={onAgentClick}
+                onEmptyRoomClick={!agent && onEmptyRoomClick ? () => onEmptyRoomClick(room.id) : undefined}
+                isDragging={drag?.sourceRoomId === room.id}
+                isDropTarget={hoverRoomId === room.id && drag?.sourceRoomId !== room.id}
+                onMouseDown={(a, e) => startDrag(a, room.id, e)}
+                onRenameAgent={handleRenameAgent}
+                onEditAgent={onEditAgent}
+                onDeleteAgent={onDeleteAgent}
+                isFanOutSource={agent ? fanOutSourceIds.has(agent.id) : false}
+              />
+            );
+          })}
 
           {hasSvgContent && (
             <svg className="office-delegation-svg" aria-hidden="true">
@@ -455,9 +467,6 @@ export function OfficeMap({ onAgentClick, onEmptyRoomClick, onEditAgent, onDelet
               ))}
             </svg>
           )}
-
-          {/* Fan-out progress panels anchored below dispatching rooms */}
-          <FanOutPanels gridRef={gridRef} onAgentClick={onAgentClick} />
         </div>
       </div>
 
