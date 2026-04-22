@@ -1,4 +1,4 @@
-export type AgentStatus = 'sleeping' | 'working' | 'pending' | 'delegating';
+export type AgentStatus = 'sleeping' | 'working' | 'pending' | 'delegating' | 'broadcasting';
 
 export interface WorkspaceSyncConfig {
   remoteUrl?: string;
@@ -84,6 +84,7 @@ export interface CronSchedule {
   enabled: boolean;
   createdAt: string;
   lastFiredAt?: string;
+  expiresAt?: string;
 }
 
 export interface ConversationSession {
@@ -91,4 +92,66 @@ export interface ConversationSession {
   summary: string;
   lastModified: number;
   firstPrompt?: string;
+}
+
+export interface FanOutTask {
+  agent: string;
+  prompt: string;
+}
+
+export interface FanOutProposal {
+  id: string;
+  fromAgentId: string;
+  teamId: string;
+  tasks: FanOutTask[];
+}
+
+// ── Live FanOut tracking ──────────────────────────────────────────────────────
+
+export type FanOutTaskStatus = 'queued' | 'running' | 'done' | 'failed';
+
+export interface FanOutTaskState {
+  taskId: string;
+  targetAgentId: string;
+  taskSnippet: string;
+  status: FanOutTaskStatus;
+  startedAt?: number;
+  completedAt?: number;
+}
+
+export interface FanOutState {
+  fanoutId: string;
+  sourceAgentId: string;
+  tasks: FanOutTaskState[];
+  startedAt: number;
+  /** true once all tasks have settled (done or failed) */
+  settled: boolean;
+}
+
+// ── Socket event payloads ─────────────────────────────────────────────────────
+
+export interface FanOutDispatchedPayload {
+  fanoutId: string;
+  sourceAgentId: string;
+  tasks: Array<{ taskId: string; targetAgentId: string; taskSnippet: string }>;
+}
+
+export interface FanOutTaskStartedPayload {
+  fanoutId: string;
+  taskId: string;
+  targetAgentId: string;
+}
+
+export interface FanOutTaskCompletePayload {
+  fanoutId: string;
+  taskId: string;
+  targetAgentId: string;
+  status: 'done' | 'failed';
+  summary?: string;
+}
+
+export interface FanOutCompletePayload {
+  fanoutId: string;
+  sourceAgentId: string;
+  results: Array<{ taskId: string; status: 'done' | 'failed' }>;
 }
