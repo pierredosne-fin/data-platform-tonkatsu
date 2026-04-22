@@ -431,7 +431,7 @@ export async function runAgentTask(
       agentService.setStatus(agentId, 'pending', question);
       io.emit('agent:statusChanged', { agentId, status: 'pending', pendingQuestion: question });
       notifyDesktop(agent.name, 'pending', question);
-      notifySlack(agent.name, question);
+      notifySlack(agent.name, agentId, question);
     } else {
       agentService.setStatus(agentId, 'sleeping');
       io.emit('agent:statusChanged', { agentId, status: 'sleeping' });
