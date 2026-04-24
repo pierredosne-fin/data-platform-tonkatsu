@@ -269,10 +269,10 @@ html, body, #root {
 
 .office-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, 160px);
   grid-template-rows: repeat(3, 160px);
   gap: 14px;
-  width: min(900px, 100%);
+  width: fit-content;
   position: relative;
 }
 
